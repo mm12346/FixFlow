@@ -200,7 +200,6 @@
                 </div>
                 <p class="text-slate-500 mb-4" id="details-id"></p>
                 
-                <!-- NEW: Cancellation Reason Display -->
                 <div id="cancellation-reason-display" class="hidden mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                     <h4 class="font-bold text-red-800">เหตุผลการยกเลิก:</h4>
                     <p class="text-red-700" id="cancellation-reason-text"></p>
@@ -226,7 +225,6 @@
                     <div id="after-image-container" class="hidden">
                         <div class="flex justify-between items-center mb-2">
                             <h4 class="font-bold">รูปภาพหลังแก้ไข</h4>
-                            <!-- NEW: Change Image Button -->
                             <button id="change-after-image-btn" class="hidden text-sm text-indigo-600 hover:text-indigo-800 font-semibold">เปลี่ยนรูป</button>
                         </div>
                         <img id="details-after-image" src="https://placehold.co/600x400/e2e8f0/a0aec0?text=รออัปโหลด" class="w-full h-auto rounded-lg shadow-sm" alt="รูปภาพหลังแก้ไข">
@@ -252,7 +250,6 @@
                              <button id="update-status-btn" class="w-full bg-slate-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-slate-800 transition-colors">อัปเดตสถานะ</button>
                          </div>
                     </div>
-                    <!-- NEW: Cancellation Comment Input -->
                     <div id="cancellation-comment-section" class="hidden">
                         <label for="cancellation-comment-input" class="block text-sm font-medium text-slate-700">เหตุผลการยกเลิก (จำเป็น)</label>
                         <textarea id="cancellation-comment-input" rows="3" class="mt-1 w-full px-3 py-2 border border-slate-300 rounded-lg"></textarea>
@@ -260,12 +257,17 @@
                  </div>
 
                  <div id="upload-after-image-section" class="mt-4 hidden">
-                    <label for="after-image-upload" class="block text-sm font-medium text-slate-700">อัปโหลดรูปหลังแก้ไข</label>
-                    <div class="flex gap-2 mt-1">
-                        <input type="file" id="after-image-upload" name="after-image-upload" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                        <button id="submit-after-image-btn" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors whitespace-nowrap">อัปโหลด</button>
+                    <!-- This file input is always hidden, triggered by buttons -->
+                    <input type="file" id="after-image-upload" name="after-image-upload" accept="image/*" class="hidden">
+                    
+                    <!-- This container is for the initial upload UI -->
+                    <div id="initial-upload-container" class="hidden">
+                        <label class="block text-sm font-medium text-slate-700">อัปโหลดรูปหลังแก้ไข</label>
+                        <button type="button" id="trigger-initial-upload-btn" class="mt-1 w-full flex items-center justify-center px-4 py-2 border border-dashed border-slate-400 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                            <span class="ml-2">เลือกไฟล์รูปภาพ...</span>
+                        </button>
                     </div>
-                    <img id="after-image-preview" src="" class="mt-2 rounded-lg max-h-40 hidden">
                  </div>
             </div>
         </div>
@@ -383,9 +385,12 @@
         const uploadAfterImageSection = document.getElementById('upload-after-image-section');
         const updateStatusSelect = document.getElementById('update-status');
         const afterImageUploadInput = document.getElementById('after-image-upload');
-        const afterImagePreview = document.getElementById('after-image-preview');
         const cancellationReasonDisplay = document.getElementById('cancellation-reason-display');
         const cancellationCommentSection = document.getElementById('cancellation-comment-section');
+        const triggerInitialUploadBtn = document.getElementById('trigger-initial-upload-btn');
+        const initialUploadContainer = document.getElementById('initial-upload-container');
+        const updateStatusBtn = document.getElementById('update-status-btn');
+        const filterBtn = document.getElementById('filter-btn');
 
 
         // =================================================================================
@@ -497,7 +502,6 @@
             document.getElementById('details-requester').textContent = `${request.requesterName} (${request.requesterId})`;
             document.getElementById('details-details').textContent = request.details || '-';
 
-            // Handle cancellation reason display
             if (request.status === 'ยกเลิก' && request.adminComment) {
                 cancellationReasonDisplay.classList.remove('hidden');
                 document.getElementById('cancellation-reason-text').textContent = request.adminComment;
@@ -518,22 +522,25 @@
                  afterImageContainer.classList.add('hidden');
             }
             
-            // Admin controls logic
             if (currentUser.isAdmin) {
                 adminControls.classList.remove('hidden');
                 updateStatusSelect.value = request.status;
                 
-                // Show/hide comment section based on current status
                 cancellationCommentSection.classList.toggle('hidden', request.status !== 'ยกเลิก');
                 document.getElementById('cancellation-comment-input').value = request.adminComment || '';
 
-                // Show/hide after image section
                 const isCompleted = request.status === 'ซ่อมเสร็จแล้ว';
                 uploadAfterImageSection.classList.toggle('hidden', !isCompleted);
-                changeAfterImageBtn.classList.toggle('hidden', !request.afterImageUrl);
 
-                afterImageUploadInput.value = '';
-                afterImagePreview.classList.add('hidden');
+                if (isCompleted) {
+                    if (request.afterImageUrl) {
+                        changeAfterImageBtn.classList.remove('hidden');
+                        initialUploadContainer.classList.add('hidden');
+                    } else {
+                        changeAfterImageBtn.classList.add('hidden');
+                        initialUploadContainer.classList.remove('hidden');
+                    }
+                }
             } else {
                 adminControls.classList.add('hidden');
             }
@@ -687,36 +694,27 @@
             afterImageUploadInput.click();
         });
 
-        submitAfterImageBtn.addEventListener('click', async () => {
-            const file = afterImageUploadInput.files[0];
+        triggerInitialUploadBtn.addEventListener('click', () => {
+            afterImageUploadInput.click();
+        });
+
+        afterImageUploadInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
             if (!file) {
-                alert('กรุณาเลือกรูปภาพ');
-                return;
+                return; // User cancelled
             }
             const imageUrl = await uploadToCloudinary(file);
             if (imageUrl) {
                 const result = await callGasApi({ action: 'addAfterImage', id: currentRequestId, imageUrl: imageUrl });
                 if (result) {
-                    alert('อัปโหลดรูปภาพหลังแก้ไขสำเร็จ');
+                    alert('อัปเดตรูปภาพหลังแก้ไขสำเร็จ');
                     const requestData = allRequests.find(r => r.id === currentRequestId);
-                    requestData.afterImageUrl = imageUrl;
-                    populateDetailsModal(requestData);
-                    loadDashboardData();
+                    if (requestData) {
+                        requestData.afterImageUrl = imageUrl;
+                        populateDetailsModal(requestData); // Re-populate to refresh the modal UI
+                    }
+                    loadDashboardData(); // Reload dashboard to ensure consistency
                 }
-            }
-        });
-        
-        afterImageUploadInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    afterImagePreview.src = event.target.result;
-                    afterImagePreview.classList.remove('hidden');
-                }
-                reader.readAsDataURL(file);
-            } else {
-                afterImagePreview.classList.add('hidden');
             }
         });
         
