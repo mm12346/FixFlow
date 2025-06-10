@@ -39,6 +39,12 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #555;
         }
+        .image-zoom-overlay {
+            cursor: zoom-out;
+        }
+        .image-zoom-content {
+            cursor: default;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -106,20 +112,13 @@
                             แจ้งซ่อมใหม่
                         </button>
                     </div>
-                    <div id="requester-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <!-- Requester items will be injected here -->
-                    </div>
-                </div>
-
-                <!-- Admin View -->
-                <div id="admin-view" class="hidden">
-                    <h2 class="text-2xl font-bold mb-4">แดชบอร์ดจัดการ (สำหรับช่าง)</h2>
-                    <!-- Filters -->
+                    <!-- Requester Filters -->
                     <div class="bg-white p-4 rounded-lg shadow-sm mb-4">
+                        <h3 class="font-bold mb-3">ค้นหารายการแจ้งซ่อม</h3>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <input type="text" id="search-problem" placeholder="ค้นหาตามชื่อปัญหา..." class="w-full px-3 py-2 border border-slate-300 rounded-lg">
-                            <input type="date" id="search-date" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
-                            <select id="search-category" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                            <input type="text" id="requester-search-problem" placeholder="ค้นหาตามชื่อปัญหา..." class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                            <input type="date" id="requester-search-date" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                            <select id="requester-search-category" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
                                 <option value="">ทุกหมวดหมู่</option>
                                 <option value="ระบบไฟฟ้า">ระบบไฟฟ้า</option>
                                 <option value="ประปา">ประปา</option>
@@ -127,7 +126,53 @@
                                 <option value="IT">IT</option>
                                 <option value="อาคารสถานที่">อาคารสถานที่</option>
                             </select>
-                            <button id="filter-btn" class="bg-slate-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-slate-800">ค้นหา</button>
+                            <button id="requester-filter-btn" class="bg-slate-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-slate-800">ค้นหา</button>
+                        </div>
+                    </div>
+                    <div id="requester-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Requester items will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Admin View -->
+                <div id="admin-view" class="hidden">
+                    <h2 class="text-2xl font-bold mb-6">แดชบอร์ดจัดการ (สำหรับช่าง)</h2>
+                    
+                    <!-- NEW: Summary Cards -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-yellow-400">
+                            <p class="text-sm font-medium text-slate-500">รอดำเนินการ</p>
+                            <p id="summary-pending" class="text-3xl font-bold text-slate-800 mt-1">0</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-400">
+                            <p class="text-sm font-medium text-slate-500">กำลังดำเนินการ</p>
+                            <p id="summary-inprogress" class="text-3xl font-bold text-slate-800 mt-1">0</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-400">
+                            <p class="text-sm font-medium text-slate-500">ซ่อมเสร็จแล้ว</p>
+                            <p id="summary-completed" class="text-3xl font-bold text-slate-800 mt-1">0</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-400">
+                            <p class="text-sm font-medium text-slate-500">ยกเลิก</p>
+                            <p id="summary-cancelled" class="text-3xl font-bold text-slate-800 mt-1">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Admin Filters -->
+                    <div class="bg-white p-4 rounded-lg shadow-sm mb-4">
+                        <h3 class="font-bold mb-3">ค้นหารายการแจ้งซ่อม</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <input type="text" id="admin-search-problem" placeholder="ค้นหาตามชื่อปัญหา..." class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                            <input type="date" id="admin-search-date" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                            <select id="admin-search-category" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                                <option value="">ทุกหมวดหมู่</option>
+                                <option value="ระบบไฟฟ้า">ระบบไฟฟ้า</option>
+                                <option value="ประปา">ประปา</option>
+                                <option value="อุปกรณ์สำนักงาน">อุปกรณ์สำนักงาน</option>
+                                <option value="IT">IT</option>
+                                <option value="อาคารสถานที่">อาคารสถานที่</option>
+                            </select>
+                            <button id="admin-filter-btn" class="bg-slate-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-slate-800">ค้นหา</button>
                         </div>
                     </div>
                     <div id="admin-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -177,7 +222,7 @@
                         <div>
                              <label for="image" class="block text-sm font-medium text-slate-700">รูปภาพปัญหา</label>
                              <input type="file" id="image" name="image" accept="image/*" class="mt-1 w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                             <img id="image-preview" src="" class="mt-2 rounded-lg max-h-40 hidden">
+                             <img id="image-preview" src="" class="mt-2 rounded-lg max-h-40 hidden zoomable-image">
                         </div>
                     </div>
                 </div>
@@ -220,14 +265,14 @@
                 <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <h4 class="font-bold mb-2">รูปภาพก่อนแก้ไข</h4>
-                        <img id="details-before-image" src="https://placehold.co/600x400/e2e8f0/a0aec0?text=ไม่มีรูปภาพ" class="w-full h-auto rounded-lg shadow-sm" alt="รูปภาพก่อนแก้ไข">
+                        <img id="details-before-image" src="https://placehold.co/600x400/e2e8f0/a0aec0?text=ไม่มีรูปภาพ" class="w-full h-auto rounded-lg shadow-sm zoomable-image cursor-zoom-in" alt="รูปภาพก่อนแก้ไข">
                     </div>
                     <div id="after-image-container" class="hidden">
                         <div class="flex justify-between items-center mb-2">
                             <h4 class="font-bold">รูปภาพหลังแก้ไข</h4>
                             <button id="change-after-image-btn" class="hidden text-sm text-indigo-600 hover:text-indigo-800 font-semibold">เปลี่ยนรูป</button>
                         </div>
-                        <img id="details-after-image" src="https://placehold.co/600x400/e2e8f0/a0aec0?text=รออัปโหลด" class="w-full h-auto rounded-lg shadow-sm" alt="รูปภาพหลังแก้ไข">
+                        <img id="details-after-image" src="https://placehold.co/600x400/e2e8f0/a0aec0?text=รออัปโหลด" class="w-full h-auto rounded-lg shadow-sm zoomable-image cursor-zoom-in" alt="รูปภาพหลังแก้ไข">
                     </div>
                 </div>
             </div>
@@ -272,73 +317,52 @@
             </div>
         </div>
     </div>
+    
+    <!-- Image Zoom Modal -->
+    <div id="image-zoom-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 image-zoom-overlay bg-black bg-opacity-80">
+        <img id="zoomed-image" src="" alt="Zoomed image" class="max-w-full max-h-full rounded-lg image-zoom-content">
+    </div>
 
 
     <script type="module">
         // =================================================================================
-        // PWA SETUP - ส่วนติดตั้ง PWA
+        // PWA SETUP
         // =================================================================================
-        
-        // Dynamically create manifest to keep everything in one file
         const manifest = {
-          "name": "FixFlow - ระบบแจ้งซ่อม",
-          "short_name": "FixFlow",
-          "description": "เว็บแอปพลิเคชันสำหรับแจ้งซ่อมบำรุงภายในองค์กร",
-          "start_url": ".",
-          "display": "standalone",
-          "background_color": "#f1f5f9",
-          "theme_color": "#4f46e5",
+          "name": "FixFlow - ระบบแจ้งซ่อม", "short_name": "FixFlow", "description": "เว็บแอปพลิเคชันสำหรับแจ้งซ่อมบำรุงภายในองค์กร", "start_url": ".", "display": "standalone", "background_color": "#f1f5f9", "theme_color": "#4f46e5",
           "icons": [
-            {
-              "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PGcgZmlsbD0iIzRmNDZlNSI+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSI0OCIgZmlsbD0iIzRmNDZlNSIvPjwvZz48cGF0aCBkPSJNMTQuNyA2LjNhMSAxIDAgMCAwIDAgMS40bDEuNiAxLjZhMSAxIDAgMCAwIDEuNCAwbDMuNzctMy43N2E2IDYgMCAwIDEtNy45NCA3Ljk0bC02LjkxIDYuOTFhMi4xMiAyLjEyIDAgMCAxLTMtM2w2LjkxLTYuOTFhNiA2IDAgMCAxIDcuOTQtNy45NGwtMy43NiAzLjc2eiI+PC9wYXRoPjwvc3ZnPg==",
-              "sizes": "192x192",
-              "type": "image/svg+xml"
-            },
-            {
-              "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxnIGZpbGw9IiM0ZjQ2ZTU unrelenting focus on user-centric design.iI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMjgiIGZpbGw9IiM0ZjQ2ZTU unrelenting focus on user-centric design.iIvPjwvZz48cGF0aCBkPSJNMTQuNyA2LjNhMSAxIDAgMCAwIDAgMS40bDEuNiAxLjZhMSAxIDAgMCAwIDEuNCAwbDMuNzctMy43N2E2IDYgMCAwIDEtNy45NCA3Ljk0bC02LjkxIDYuOTFhMi4xMiAyLjEyIDAgMCAxLTMtM2w2LjkxLTYuOTFhNiA2IDAgMCAxIDcuOTQtNy45NGwtMy43NiAzLjc2eiI+PC9wYXRoPjwvc3ZnPg==",
-              "sizes": "512x512",
-              "type": "image/svg+xml"
-            }
+            { "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PGcgZmlsbD0iIzRmNDZlNSI+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSI0OCIgZmlsbD0iIzRmNDZlNSIvPjwvZz48cGF0aCBkPSJNMTQuNyA2LjNhMSAxIDAgMCAwIDAgMS40bDEuNiAxLjZhMSAxIDAgMCAwIDEuNCAwbDMuNzctMy43N2E2IDYgMCAwIDEtNy45NCA3Ljk0bC02LjkxIDYuOTFhMi4xMiAyLjEyIDAgMCAxLTMtM2w2LjkxLTYuOTFhNiA2IDAgMCAxIDcuOTQtNy45NGwtMy43NiAzLjc2eiI+PC9wYXRoPjwvc3ZnPg==", "sizes": "192x192", "type": "image/svg+xml" },
+            { "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxnIGZpbGw9IiM0ZjQ2ZTU unrelenting focus on user-centric design.iI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMjgiIGZpbGw9IiM0ZjQ2ZTU unrelenting focus on user-centric design.iIvPjwvZz48cGF0aCBkPSJNMTQuNyA2LjNhMSAxIDAgMCAwIDAgMS40bDEuNiAxLjZhMSAxIDAgMCAwIDEuNCAwbDMuNzctMy43N2E2IDYgMCAwIDEtNy45NCA3Ljk0bC02LjkxIDYuOTFhMi4xMiAyLjEyIDAgMCAxLTMtM2w2LjkxLTYuOTFhNiA2IDAgMCAxIDcuOTQtNy45NGwtMy43NiAzLjc2eiI+PC9wYXRoPjwvc3ZnPg==", "sizes": "512x512", "type": "image/svg+xml" }
           ]
         };
         const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
         const manifestURL = URL.createObjectURL(manifestBlob);
         document.querySelector('#manifest').setAttribute('href', manifestURL);
 
-        // Service Worker Registration
         if ('serviceWorker' in navigator) {
           window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js').then(registration => {
-              console.log('ServiceWorker registration successful with scope: ', registration.scope);
-            }, err => {
-              console.log('ServiceWorker registration failed: ', err);
-            });
+            navigator.serviceWorker.register('./sw.js').then(reg => console.log('SW registered.', reg), err => console.log('SW registration failed: ', err));
           });
         }
         
-        // PWA Install Prompt
         let deferredPrompt;
         const installButton = document.getElementById('install-pwa-btn');
-
         window.addEventListener('beforeinstallprompt', (e) => {
           e.preventDefault();
           deferredPrompt = e;
           installButton.classList.remove('hidden');
         });
-        
         installButton.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                console.log(`User response to the install prompt: ${outcome}`);
+                await deferredPrompt.userChoice;
                 deferredPrompt = null;
                 installButton.classList.add('hidden');
             }
         });
 
-
         // =================================================================================
-        // CONFIGURATION - ตั้งค่า
+        // CONFIGURATION
         // =================================================================================
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbx8hEiLXZUY2IP0QNsaVYhstFzmRs6oIoFAskJPTxFtK9PBbqkufuRYBIcQz6LZ0ftRig/exec";
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dsmiqo5si/image/upload";
@@ -346,38 +370,33 @@
         const ADMIN_ID = "9999999999";
 
         // =================================================================================
-        // STATE MANAGEMENT - จัดการสถานะของแอป
+        // STATE
         // =================================================================================
         let currentUser = null;
         let allRequests = [];
         let currentRequestId = null;
 
         // =================================================================================
-        // DOM ELEMENTS - ตัวแปรอ้างอิงถึง Element ในหน้าเว็บ
+        // DOM ELEMENTS
         // =================================================================================
         const loadingOverlay = document.getElementById('loading-overlay');
         const loginPage = document.getElementById('login-page');
         const mainAppPage = document.getElementById('main-app-page');
         const requesterView = document.getElementById('requester-view');
         const adminView = document.getElementById('admin-view');
-        
         const loginForm = document.getElementById('login-form');
         const employeeIdInput = document.getElementById('employee-id');
         const loginError = document.getElementById('login-error');
-        
         const userNameDisplay = document.getElementById('user-name-display');
         const userIdDisplay = document.getElementById('user-id-display');
         const logoutButton = document.getElementById('logout-button');
-
         const requesterList = document.getElementById('requester-list');
         const adminList = document.getElementById('admin-list');
-        
         const requestModal = document.getElementById('request-modal');
         const openRequestModalBtn = document.getElementById('open-request-modal-btn');
         const newRequestForm = document.getElementById('new-request-form');
         const imageInput = document.getElementById('image');
         const imagePreview = document.getElementById('image-preview');
-
         const detailsModal = document.getElementById('details-modal');
         const adminControls = document.getElementById('admin-controls');
         const afterImageContainer = document.getElementById('after-image-container');
@@ -390,15 +409,16 @@
         const triggerInitialUploadBtn = document.getElementById('trigger-initial-upload-btn');
         const initialUploadContainer = document.getElementById('initial-upload-container');
         const updateStatusBtn = document.getElementById('update-status-btn');
-        const filterBtn = document.getElementById('filter-btn');
-
+        const imageZoomModal = document.getElementById('image-zoom-modal');
+        const zoomedImage = document.getElementById('zoomed-image');
+        const adminFilterBtn = document.getElementById('admin-filter-btn');
+        const requesterFilterBtn = document.getElementById('requester-filter-btn');
 
         // =================================================================================
-        // HELPER FUNCTIONS - ฟังก์ชันช่วยเหลือ
+        // HELPERS
         // =================================================================================
         const showLoading = (show) => loadingOverlay.classList.toggle('hidden', !show);
         const showModal = (modal, show) => modal.classList.toggle('hidden', !show);
-
         const statusColors = {
             "รอดำเนินการ": "bg-yellow-100 text-yellow-800",
             "กำลังดำเนินการ": "bg-blue-100 text-blue-800",
@@ -407,45 +427,29 @@
         };
 
         // =================================================================================
-        // API COMMUNICATION - ฟังก์ชันสำหรับติดต่อ API
+        // API COMMUNICATION
         // =================================================================================
-        
         async function callGasApi(payload) {
-            showLoading(true);
             try {
                 const response = await fetch(GAS_API_URL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    cache: 'no-cache',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
+                    method: 'POST', mode: 'cors', cache: 'no-cache', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload)
                 });
-                
                 if (!response.ok) throw new Error(`Network response was not ok, status: ${response.status}`);
-                
                 const result = await response.json();
-                if(result.status === 'error') throw new Error(result.message || 'เกิดข้อผิดพลาดจาก API');
-                
+                if (result.status === 'error') throw new Error(result.message || 'เกิดข้อผิดพลาดจาก API');
                 return result.data;
-
             } catch (error) {
                 console.error("API Call Error:", error);
-                if (navigator.onLine) {
-                    alert(`เกิดข้อผิดพลาดในการเชื่อมต่อ: ${error.message}`);
-                }
+                if (navigator.onLine) alert(`เกิดข้อผิดพลาดในการเชื่อมต่อ: ${error.message}`);
                 return null;
-            } finally {
-                showLoading(false);
             }
         }
 
         async function uploadToCloudinary(file) {
-            showLoading(true);
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-
             try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
                 const response = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
                 const data = await response.json();
                 if (data.secure_url) return data.secure_url;
@@ -454,28 +458,33 @@
                 console.error("Cloudinary Upload Error:", error);
                 alert("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ");
                 return null;
-            } finally {
-                showLoading(false);
             }
         }
 
         // =================================================================================
-        // RENDERING FUNCTIONS - ฟังก์ชันสำหรับสร้างและแสดงผล UI
+        // UI RENDERING & LOGIC
         // =================================================================================
-        
+        function updateSummaryCards(requests) {
+            const counts = { pending: 0, inprogress: 0, completed: 0, cancelled: 0 };
+            requests.forEach(req => {
+                if (req.status === 'รอดำเนินการ') counts.pending++;
+                else if (req.status === 'กำลังดำเนินการ') counts.inprogress++;
+                else if (req.status === 'ซ่อมเสร็จแล้ว') counts.completed++;
+                else if (req.status === 'ยกเลิก') counts.cancelled++;
+            });
+            document.getElementById('summary-pending').textContent = counts.pending;
+            document.getElementById('summary-inprogress').textContent = counts.inprogress;
+            document.getElementById('summary-completed').textContent = counts.completed;
+            document.getElementById('summary-cancelled').textContent = counts.cancelled;
+        }
+
         function createRequestCard(request) {
             const colorClass = statusColors[request.status] || "bg-slate-100 text-slate-800";
             return `
                 <div class="request-card bg-white p-4 rounded-xl shadow-md hover:shadow-lg transition-shadow cursor-pointer border-l-4 ${colorClass.replace('bg-', 'border-').replace('-100', '-500')}" data-id="${request.id}">
-                    <div class="flex justify-between items-start">
-                        <p class="font-bold text-lg truncate">${request.problem}</p>
-                        <span class="text-xs font-semibold px-2 py-1 rounded-full ${colorClass}">${request.status}</span>
-                    </div>
+                    <div class="flex justify-between items-start"><p class="font-bold text-lg truncate">${request.problem}</p><span class="text-xs font-semibold px-2 py-1 rounded-full ${colorClass}">${request.status}</span></div>
                     <p class="text-sm text-slate-500 mt-1">${request.category} • ${request.location}</p>
-                    <div class="flex justify-between items-center mt-3 text-sm text-slate-400">
-                        <span>${new Date(request.date).toLocaleDateString('th-TH')}</span>
-                        <span>ID: ${request.id.slice(0, 6)}...</span>
-                    </div>
+                    <div class="flex justify-between items-center mt-3 text-sm text-slate-400"><span>${new Date(request.date).toLocaleDateString('th-TH')}</span><span>ID: ${request.id.slice(0, 6)}...</span></div>
                 </div>`;
         }
 
@@ -495,18 +504,15 @@
             const statusSpan = document.getElementById('details-status');
             statusSpan.textContent = request.status;
             statusSpan.className = `font-semibold px-2 py-1 rounded-full text-sm ${statusColors[request.status]}`;
-            
             document.getElementById('details-date').textContent = new Date(request.date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric'});
             document.getElementById('details-category').textContent = request.category;
             document.getElementById('details-location').textContent = request.location;
             document.getElementById('details-requester').textContent = `${request.requesterName} (${request.requesterId})`;
             document.getElementById('details-details').textContent = request.details || '-';
 
+            cancellationReasonDisplay.classList.toggle('hidden', !(request.status === 'ยกเลิก' && request.adminComment));
             if (request.status === 'ยกเลิก' && request.adminComment) {
-                cancellationReasonDisplay.classList.remove('hidden');
-                document.getElementById('cancellation-reason-text').textContent = request.adminComment;
-            } else {
-                cancellationReasonDisplay.classList.add('hidden');
+                 document.getElementById('cancellation-reason-text').textContent = request.adminComment;
             }
 
             const beforeImage = document.getElementById('details-before-image');
@@ -514,57 +520,49 @@
             beforeImage.onerror = () => { beforeImage.src = 'https://placehold.co/600x400/e2e8f0/a0aec0?text=Error'; };
 
             const afterImage = document.getElementById('details-after-image');
+            afterImageContainer.classList.toggle('hidden', !request.afterImageUrl);
             if (request.afterImageUrl) {
-                 afterImageContainer.classList.remove('hidden');
                  afterImage.src = request.afterImageUrl;
                  afterImage.onerror = () => { afterImage.src = 'https://placehold.co/600x400/e2e8f0/a0aec0?text=Error'; };
-            } else {
-                 afterImageContainer.classList.add('hidden');
             }
             
             if (currentUser.isAdmin) {
                 adminControls.classList.remove('hidden');
                 updateStatusSelect.value = request.status;
-                
                 cancellationCommentSection.classList.toggle('hidden', request.status !== 'ยกเลิก');
                 document.getElementById('cancellation-comment-input').value = request.adminComment || '';
-
                 const isCompleted = request.status === 'ซ่อมเสร็จแล้ว';
                 uploadAfterImageSection.classList.toggle('hidden', !isCompleted);
 
                 if (isCompleted) {
-                    if (request.afterImageUrl) {
-                        changeAfterImageBtn.classList.remove('hidden');
-                        initialUploadContainer.classList.add('hidden');
-                    } else {
-                        changeAfterImageBtn.classList.add('hidden');
-                        initialUploadContainer.classList.remove('hidden');
-                    }
+                    changeAfterImageBtn.classList.toggle('hidden', !request.afterImageUrl);
+                    initialUploadContainer.classList.toggle('hidden', !!request.afterImageUrl);
                 }
             } else {
                 adminControls.classList.add('hidden');
             }
-
             showModal(detailsModal, true);
         }
 
         async function loadDashboardData() {
+            showLoading(true);
             const data = await callGasApi({ action: 'getRequests' });
             if (data) {
                 allRequests = data.sort((a, b) => new Date(b.date) - new Date(a.date));
                 if (currentUser.isAdmin) {
+                    updateSummaryCards(allRequests);
                     renderRequests(allRequests, adminList);
                 } else {
                     const userRequests = allRequests.filter(r => String(r.requesterId) === String(currentUser.id));
                     renderRequests(userRequests, requesterList);
                 }
             }
+            showLoading(false);
         }
 
         // =================================================================================
-        // EVENT LISTENERS - กำหนดการทำงานเมื่อเกิด Event ต่างๆ
+        // EVENT LISTENERS
         // =================================================================================
-        
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = employeeIdInput.value;
@@ -573,70 +571,65 @@
                 loginError.textContent = 'กรุณากรอกรหัสพนักงาน 10 หลักให้ถูกต้อง';
                 return;
             }
-            const userData = await callGasApi({ action: 'login', employeeId: id });
-            if (userData) {
-                currentUser = {
-                    id: userData.id,
-                    name: userData.name,
-                    isAdmin: String(userData.id) === String(ADMIN_ID)
-                };
-                userNameDisplay.textContent = currentUser.name;
-                userIdDisplay.textContent = `ID: ${currentUser.id}`;
-                loginPage.classList.add('hidden');
-                mainAppPage.classList.remove('hidden');
-                adminView.classList.toggle('hidden', !currentUser.isAdmin);
-                requesterView.classList.toggle('hidden', currentUser.isAdmin);
-                loadDashboardData();
-            } else {
-                loginError.textContent = 'ไม่พบรหัสพนักงานนี้ในระบบ';
+            showLoading(true);
+            try {
+                const userData = await callGasApi({ action: 'login', employeeId: id });
+                if (userData) {
+                    currentUser = { id: userData.id, name: userData.name, isAdmin: String(userData.id) === String(ADMIN_ID) };
+                    userNameDisplay.textContent = currentUser.name;
+                    userIdDisplay.textContent = `ID: ${currentUser.id}`;
+                    loginPage.classList.add('hidden');
+                    mainAppPage.classList.remove('hidden');
+                    adminView.classList.toggle('hidden', !currentUser.isAdmin);
+                    requesterView.classList.toggle('hidden', currentUser.isAdmin);
+                    await loadDashboardData();
+                } else {
+                    loginError.textContent = 'ไม่พบรหัสพนักงานนี้ในระบบ';
+                }
+            } catch (error) {
+                console.error("Login Error:", error);
+                loginError.textContent = 'เกิดข้อผิดพลาดในการล็อกอิน';
+            } finally {
+                showLoading(false);
             }
         });
 
         logoutButton.addEventListener('click', () => {
-            currentUser = null;
-            allRequests = [];
-            employeeIdInput.value = '';
-            mainAppPage.classList.add('hidden');
-            loginPage.classList.remove('hidden');
+            currentUser = null; allRequests = []; employeeIdInput.value = '';
+            mainAppPage.classList.add('hidden'); loginPage.classList.remove('hidden');
         });
 
         openRequestModalBtn.addEventListener('click', () => {
-            newRequestForm.reset();
-            imagePreview.classList.add('hidden');
-            showModal(requestModal, true);
+            newRequestForm.reset(); imagePreview.classList.add('hidden'); showModal(requestModal, true);
         });
 
         document.querySelectorAll('.close-modal-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                showModal(requestModal, false);
-                showModal(detailsModal, false);
-            });
+            btn.addEventListener('click', () => { showModal(requestModal, false); showModal(detailsModal, false); });
         });
         
         newRequestForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = new FormData(newRequestForm);
-            let imageUrl = '';
-            const imageFile = formData.get('image');
-            if (imageFile && imageFile.size > 0) {
-                const uploadedUrl = await uploadToCloudinary(imageFile);
-                if (!uploadedUrl) return;
-                imageUrl = uploadedUrl;
-            }
-            const requestData = {
-                problem: formData.get('problem'),
-                category: formData.get('category'),
-                location: formData.get('location'),
-                details: formData.get('details'),
-                beforeImageUrl: imageUrl,
-                requesterId: currentUser.id,
-                requesterName: currentUser.name
-            };
-            const result = await callGasApi({ action: 'createRequest', data: requestData });
-            if (result) {
-                alert('แจ้งซ่อมสำเร็จ');
-                showModal(requestModal, false);
-                loadDashboardData();
+            showLoading(true);
+            try {
+                const formData = new FormData(newRequestForm);
+                let imageUrl = '';
+                const imageFile = formData.get('image');
+                if (imageFile && imageFile.size > 0) {
+                    const uploadedUrl = await uploadToCloudinary(imageFile);
+                    if (!uploadedUrl) return; 
+                    imageUrl = uploadedUrl;
+                }
+                const requestData = { problem: formData.get('problem'), category: formData.get('category'), location: formData.get('location'), details: formData.get('details'), beforeImageUrl: imageUrl, requesterId: currentUser.id, requesterName: currentUser.name };
+                const result = await callGasApi({ action: 'createRequest', data: requestData });
+                if (result) {
+                    alert('แจ้งซ่อมสำเร็จ');
+                    showModal(requestModal, false);
+                    await loadDashboardData();
+                }
+            } catch (error) {
+                console.error("Submit error", error);
+            } finally {
+                showLoading(false);
             }
         });
         
@@ -661,26 +654,38 @@
                 const requestData = allRequests.find(r => r.id === requestId);
                 if (requestData) populateDetailsModal(requestData);
              }
+             if (e.target.classList.contains('zoomable-image') && e.target.src && !e.target.src.includes('placehold.co')) {
+                zoomedImage.src = e.target.src;
+                showModal(imageZoomModal, true);
+             }
         });
+        
+        imageZoomModal.addEventListener('click', () => {
+            showModal(imageZoomModal, false);
+            zoomedImage.src = ''; 
+        });
+
 
         updateStatusBtn.addEventListener('click', async () => {
             const newStatus = updateStatusSelect.value;
             const payload = { action: 'updateStatus', id: currentRequestId, status: newStatus };
-            
             if (newStatus === 'ยกเลิก') {
                 const comment = document.getElementById('cancellation-comment-input').value.trim();
-                if (!comment) {
-                    alert('กรุณากรอกเหตุผลการยกเลิก');
-                    return;
-                }
+                if (!comment) { alert('กรุณากรอกเหตุผลการยกเลิก'); return; }
                 payload.comment = comment;
             }
-
-            const result = await callGasApi(payload);
-            if(result) {
-                alert('อัปเดตสถานะสำเร็จ');
-                showModal(detailsModal, false);
-                loadDashboardData();
+            showLoading(true);
+            try {
+                const result = await callGasApi(payload);
+                if(result) {
+                    alert('อัปเดตสถานะสำเร็จ');
+                    showModal(detailsModal, false);
+                    await loadDashboardData();
+                }
+            } catch (error) {
+                console.error("Update status error:", error);
+            } finally {
+                showLoading(false);
             }
         });
         
@@ -690,46 +695,57 @@
             uploadAfterImageSection.classList.toggle('hidden', e.target.value !== 'ซ่อมเสร็จแล้ว');
         });
 
-        changeAfterImageBtn.addEventListener('click', () => {
-            afterImageUploadInput.click();
-        });
-
-        triggerInitialUploadBtn.addEventListener('click', () => {
-            afterImageUploadInput.click();
-        });
+        changeAfterImageBtn.addEventListener('click', () => afterImageUploadInput.click());
+        triggerInitialUploadBtn.addEventListener('click', () => afterImageUploadInput.click());
 
         afterImageUploadInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
-            if (!file) {
-                return; // User cancelled
-            }
-            const imageUrl = await uploadToCloudinary(file);
-            if (imageUrl) {
-                const result = await callGasApi({ action: 'addAfterImage', id: currentRequestId, imageUrl: imageUrl });
-                if (result) {
-                    alert('อัปเดตรูปภาพหลังแก้ไขสำเร็จ');
-                    const requestData = allRequests.find(r => r.id === currentRequestId);
-                    if (requestData) {
-                        requestData.afterImageUrl = imageUrl;
-                        populateDetailsModal(requestData); // Re-populate to refresh the modal UI
+            if (!file) return;
+            showLoading(true);
+            try {
+                const imageUrl = await uploadToCloudinary(file);
+                if (imageUrl) {
+                    const result = await callGasApi({ action: 'addAfterImage', id: currentRequestId, imageUrl: imageUrl });
+                    if (result) {
+                        alert('อัปเดตรูปภาพหลังแก้ไขสำเร็จ');
+                        const requestData = allRequests.find(r => r.id === currentRequestId);
+                        if (requestData) {
+                            requestData.afterImageUrl = imageUrl;
+                            populateDetailsModal(requestData);
+                        }
+                        await loadDashboardData();
                     }
-                    loadDashboardData(); // Reload dashboard to ensure consistency
                 }
+            } catch (error) {
+                console.error("Upload after image error:", error);
+            } finally {
+                showLoading(false);
             }
         });
         
-        filterBtn.addEventListener('click', () => {
-            const problem = document.getElementById('search-problem').value.toLowerCase();
-            const date = document.getElementById('search-date').value;
-            const category = document.getElementById('search-category').value;
-            const filtered = allRequests.filter(req => {
+        const handleFilter = (isRequester) => {
+            const problemInput = document.getElementById(isRequester ? 'requester-search-problem' : 'admin-search-problem');
+            const dateInput = document.getElementById(isRequester ? 'requester-search-date' : 'admin-search-date');
+            const categoryInput = document.getElementById(isRequester ? 'requester-search-category' : 'admin-search-category');
+            
+            const problem = problemInput.value.toLowerCase();
+            const date = dateInput.value;
+            const category = categoryInput.value;
+
+            const sourceData = isRequester ? allRequests.filter(r => String(r.requesterId) === String(currentUser.id)) : allRequests;
+            
+            const filtered = sourceData.filter(req => {
                 const reqDate = req.date.split('T')[0]; 
                 return (problem ? req.problem.toLowerCase().includes(problem) : true) &&
                        (date ? reqDate === date : true) &&
                        (category ? req.category === category : true);
             });
-            renderRequests(filtered, adminList);
-        });
+
+            renderRequests(filtered, isRequester ? requesterList : adminList);
+        };
+
+        adminFilterBtn.addEventListener('click', () => handleFilter(false));
+        requesterFilterBtn.addEventListener('click', () => handleFilter(true));
 
     </script>
 </body>
