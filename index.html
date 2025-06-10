@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FixFlow - ระบบแจ้งซ่อม</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#4f46e5"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="เว็บแอปพลิเคชันสำหรับแจ้งซ่อมบำรุงภายในองค์กร">
+    <link rel="manifest" id="manifest">
+    <link rel="apple-touch-icon" href="icon-192.png"> <!-- Fallback for Apple devices -->
+
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -69,7 +79,11 @@
                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
                         <h1 class="text-2xl font-bold text-indigo-600">FixFlow</h1>
                     </div>
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <button id="install-pwa-btn" class="hidden bg-indigo-100 text-indigo-700 font-bold py-2 px-3 rounded-lg hover:bg-indigo-200 transition-colors flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                            <span>ติดตั้งแอป</span>
+                        </button>
                         <div id="user-info" class="text-right">
                             <p class="font-semibold" id="user-name-display"></p>
                             <p class="text-sm text-slate-500" id="user-id-display"></p>
@@ -241,6 +255,75 @@
 
     <script type="module">
         // =================================================================================
+        // PWA SETUP - ส่วนติดตั้ง PWA
+        // =================================================================================
+        
+        // Dynamically create manifest to keep everything in one file
+        const manifest = {
+          "name": "FixFlow - ระบบแจ้งซ่อม",
+          "short_name": "FixFlow",
+          "description": "เว็บแอปพลิเคชันสำหรับแจ้งซ่อมบำรุงภายในองค์กร",
+          "start_url": ".",
+          "display": "standalone",
+          "background_color": "#f1f5f9",
+          "theme_color": "#4f46e5",
+          "icons": [
+            {
+              "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PGcgZmlsbD0iIzRmNDZlNSI+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSI0OCIgZmlsbD0iIzRmNDZlNSIvPjwvZz48cGF0aCBkPSJNMTQuNyA2LjNhMSAxIDAgMCAwIDAgMS40bDEuNiAxLjZhMSAxIDAgMCAwIDEuNCAwbDMuNzctMy43N2E2IDYgMCAwIDEtNy45NCA3Ljk0bC02LjkxIDYuOTFhMi4xMiAyLjEyIDAgMCAxLTMtM2w2LjkxLTYuOTFhNiA2IDAgMCAxIDcuOTQtNy45NGwtMy43NiAzLjc2eiI+PC9wYXRoPjwvc3ZnPg==",
+              "sizes": "192x192",
+              "type": "image/svg+xml"
+            },
+            {
+              "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxnIGZpbGw9IiM0ZjQ2ZTU unrelenting focus on user-centric design.iI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMjgiIGZpbGw9IiM0ZjQ2ZTU unrelenting focus on user-centric design.iIvPjwvZz48cGF0aCBkPSJNMTQuNyA2LjNhMSAxIDAgMCAwIDAgMS40bDEuNiAxLjZhMSAxIDAgMCAwIDEuNCAwbDMuNzctMy43N2E2IDYgMCAwIDEtNy45NCA3Ljk0bC02LjkxIDYuOTFhMi4xMiAyLjEyIDAgMCAxLTMtM2w2LjkxLTYuOTFhNiA2IDAgMCAxIDcuOTQtNy45NGwtMy43NiAzLjc2eiI+PC9wYXRoPjwvc3ZnPg==",
+              "sizes": "512x512",
+              "type": "image/svg+xml"
+            }
+          ]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+        const manifestURL = URL.createObjectURL(manifestBlob);
+        document.querySelector('#manifest').setAttribute('href', manifestURL);
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js').then(registration => {
+              console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            }, err => {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+          });
+        }
+        
+        // PWA Install Prompt
+        let deferredPrompt;
+        const installButton = document.getElementById('install-pwa-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+          // Prevent Chrome 67 and earlier from automatically showing the prompt
+          e.preventDefault();
+          // Stash the event so it can be triggered later.
+          deferredPrompt = e;
+          // Update UI to notify the user they can add to home screen
+          installButton.classList.remove('hidden');
+        });
+        
+        installButton.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // Show the install prompt
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to the install prompt: ${outcome}`);
+                // We've used the prompt, and can't use it again, throw it away
+                deferredPrompt = null;
+                // Hide the install button
+                installButton.classList.add('hidden');
+            }
+        });
+
+
+        // =================================================================================
         // CONFIGURATION - ตั้งค่า
         // =================================================================================
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbx8hEiLXZUY2IP0QNsaVYhstFzmRs6oIoFAskJPTxFtK9PBbqkufuRYBIcQz6LZ0ftRig/exec";
@@ -342,7 +425,10 @@
 
             } catch (error) {
                 console.error("API Call Error:", error);
-                alert(`เกิดข้อผิดพลาดในการเชื่อมต่อ: ${error.message}`);
+                // For PWA, don't alert on network error if offline, service worker will handle.
+                if (navigator.onLine) {
+                    alert(`เกิดข้อผิดพลาดในการเชื่อมต่อ: ${error.message}`);
+                }
                 return null;
             } finally {
                 showLoading(false);
@@ -482,7 +568,7 @@
                 if (currentUser.isAdmin) {
                     renderRequests(allRequests, adminList);
                 } else {
-                    const userRequests = allRequests.filter(r => r.requesterId === currentUser.id);
+                    const userRequests = allRequests.filter(r => String(r.requesterId) === String(currentUser.id));
                     renderRequests(userRequests, requesterList);
                 }
             }
@@ -510,7 +596,6 @@
                 currentUser = {
                     id: userData.id,
                     name: userData.name,
-                    // FIX: Convert both IDs to String for a reliable comparison
                     isAdmin: String(userData.id) === String(ADMIN_ID)
                 };
                 
@@ -684,7 +769,7 @@
             const category = document.getElementById('search-category').value;
             
             const filtered = allRequests.filter(req => {
-                const reqDate = req.date.split('T')[0]; // 免疫-MM-DD
+                const reqDate = req.date.split('T')[0]; 
                 return (problem ? req.problem.toLowerCase().includes(problem) : true) &&
                        (date ? reqDate === date : true) &&
                        (category ? req.category === category : true);
