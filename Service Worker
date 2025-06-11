@@ -1,12 +1,4 @@
-/**
- * @fileoverview Service Worker for FixFlow PWA.
- * Handles caching of the app shell for offline functionality.
- *
- * @version 1.0
- */
-
-// A unique name for the cache
-const CACHE_NAME = 'fixflow-cache-v1.1';
+const CACHE_NAME = 'fixflow-cache-v1.2';
 
 // A list of files to cache for the application shell
 const urlsToCache = [
@@ -17,11 +9,7 @@ const urlsToCache = [
   // The basic offline functionality will still work for the main app page.
 ];
 
-/**
- * Installation event.
- * This is triggered when the service worker is first installed.
- * It opens the cache and adds the app shell files to it.
- */
+
 self.addEventListener('install', event => {
   console.log('[Service Worker] Install');
   // Perform install steps
@@ -34,12 +22,6 @@ self.addEventListener('install', event => {
   );
 });
 
-/**
- * Fetch event.
- * This is triggered for every network request made by the page.
- * It checks if the requested resource is in the cache.
- * If yes, it returns the cached version. If not, it fetches from the network.
- */
 self.addEventListener('fetch', event => {
   // We only want to handle GET requests.
   if (event.request.method !== 'GET') {
@@ -61,11 +43,7 @@ self.addEventListener('fetch', event => {
   );
 });
 
-/**
- * Activate event.
- * This is triggered when the service worker is activated.
- * It's a good place to clean up old, unused caches.
- */
+
 self.addEventListener('activate', event => {
   console.log('[Service Worker] Activate');
   const cacheWhitelist = [CACHE_NAME];
