@@ -1,59 +1,32 @@
-const CACHE_NAME = 'fixflow-cache-v1.3';
+// Service Worker for FixFlow App (Vanilla Version)
+console.log('Service Worker Loaded');
 
-// A list of files to cache for the application shell
+const CACHE_NAME = 'fixflow-cache-v1.5';
 const urlsToCache = [
   '/',
-  '/index.html' // Assumes the main file is named index.html
-  // External assets like Google Fonts and TailwindCSS are typically handled
-  // by the browser's cache and are tricky to cache here due to CORS.
-  // The basic offline functionality will still work for the main app page.
+  '/index.html',
+  // คุณสามารถเพิ่มไฟล์ CSS หรือ JS อื่นๆ ที่นี่ได้
 ];
 
-
+// Install event: cache application shell
 self.addEventListener('install', event => {
-  console.log('[Service Worker] Install');
-  // Perform install steps
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('[Service Worker] Caching app shell');
+        console.log('Caching app shell');
         return cache.addAll(urlsToCache);
       })
   );
 });
 
-self.addEventListener('fetch', event => {
-  // We only want to handle GET requests.
-  if (event.request.method !== 'GET') {
-    return;
-  }
-  
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Cache hit - return the cached response
-        if (response) {
-          return response;
-        }
-
-        // Not in cache - fetch from the network
-        return fetch(event.request);
-      }
-    )
-  );
-});
-
-
+// Activate event: clean up old caches
 self.addEventListener('activate', event => {
-  console.log('[Service Worker] Activate');
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          // If the cache name is not in our whitelist, delete it
           if (cacheWhitelist.indexOf(cacheName) === -1) {
-            console.log(`[Service Worker] Deleting old cache: ${cacheName}`);
             return caches.delete(cacheName);
           }
         })
@@ -61,3 +34,47 @@ self.addEventListener('activate', event => {
     })
   );
 });
+
+// Fetch event: serve from cache first, then network
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+  
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
+    })
+  );
+});
+
+
+// Push event: listen for incoming push messages
+self.addEventListener('push', event => {
+  console.log('[Service Worker] Push Received.');
+  
+  // Parse the data from the push event
+  // เราคาดว่าข้อมูลจะมาในรูปแบบ JSON string
+  const data = event.data ? event.data.json() : {};
+  
+  const title = data.title || 'FixFlow Notification';
+  const options = {
+    body: data.body || 'You have a new update.',
+    icon: './icon-192.png', // Path to an icon image
+    badge: './icon-badge.png', // Path to a badge image (for Android)
+    data: {
+      url: data.url || '/' // URL to open when notification is clicked
+    }
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Notification click event: handle user clicking on the notification
+self.addEventListener('notificationclick', event => {
+  event.notification.close(); // Close the notification
+
+  // Open the URL specified in the push data, or the root URL
+  event.waitUntil(
+    clients.openWindow(event.notification.data.url || '/')
+  );
+});
+
