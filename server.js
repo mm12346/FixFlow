@@ -19,7 +19,7 @@ const publicVapidKey = 'BNxogBnP7UQvmyagjJ9R1Sxa7I6_Kp-51WWewWsUEkH1Jx_km8ayUSPu
 const privateVapidKey = 'bP4fpbU6IR4OuOr81X4-fkLMC8iOHV7oSceLvVxz0uM';
 
 webpush.setVapidDetails(
-  'stcn58@gmail.com', // ใช้อีเมลของคุณ
+  'mailto:your-email@example.com', // ใช้อีเมลของคุณ
   publicVapidKey,
   privateVapidKey
 );
