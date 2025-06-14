@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fixflow-cache-v1.2';
+const CACHE_NAME = 'fixflow-cache-v1.3';
 
 // A list of files to cache for the application shell
 const urlsToCache = [
