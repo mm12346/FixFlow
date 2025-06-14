@@ -115,10 +115,6 @@
                         <h1 class="text-2xl font-bold text-indigo-600">FixFlow</h1>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button id="enable-notifications-btn" class="hidden bg-amber-100 text-amber-800 font-bold py-2 px-3 rounded-lg hover:bg-amber-200 transition-colors flex items-center gap-2">
-                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-                            <span>รับการแจ้งเตือน</span>
-                        </button>
                         <button id="install-pwa-btn" class="hidden bg-indigo-100 text-indigo-700 font-bold py-2 px-3 rounded-lg hover:bg-indigo-200 transition-colors flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                             <span>ติดตั้งแอป</span>
@@ -406,60 +402,24 @@
 
     <script type="module">
         // =================================================================================
-        // DYNAMICALLY CREATE AND REGISTER SERVICE WORKER FOR PWA & PUSH
-        // =================================================================================
-        const swCode = `
-            self.addEventListener('install', (event) => {
-                console.log('SW Install');
-                self.skipWaiting(); 
-            });
-
-            self.addEventListener('activate', (event) => {
-                console.log('SW Activate');
-                event.waitUntil(self.clients.claim());
-            });
-            
-            self.addEventListener('push', (event) => {
-                console.log('[Service Worker] Push Received.');
-                const pushData = event.data.json();
-
-                const title = pushData.title || 'FixFlow Notification';
-                const options = {
-                    body: pushData.body || 'มีรายการแจ้งซ่อมใหม่!',
-                    icon: pushData.icon || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PGcgZmlsbD0iIzRmNDZlNSI+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSI0OCIgZmlsbD0iIzRmNDZlNSIvPjwvZz48cGF0aCBkPSJNMTQuNyA2LjNhMSAxIDAgMCAwIDAgMS40bDEuNiAxLjZhMSAxIDAgMCAwIDEuNCAwbDMuNzctMy43N2E2IDYgMCAwIDEtNy45NCA3Ljk0bC02LjkxIDYuOTFhMi4xMiAyLjEyIDAgMCAxLTMtM2w2LjkxLTYuOTFhNiA2IDAgMCAxIDcuOTQtNy45NGwtMy43NiAzLjc2eiI+PC9wYXRoPjwvc3ZnPg==',
-                    badge: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjNGY0NmU1Ij48cGF0aCBkPSJNMTQuNyA2LjNhMSAxIDAgMCAwIDAgMS40bDEuNiAxLjZhMSAxIDAgMCAwIDEuNCAwbDMuNzctMy43N2E2IDYgMCAwIDEtNy45NCA3Ljk0bC02LjkxIDYuOTFhMi4xMiAyLjEyIDAgMCAxLTMtM2w2LjkxLTYuOTFhNiA2IDAgMCAxIDcuOTQtNy45NGwtMy43NiAzLjc2eiIvPjwvc3ZnPg==',
-                    data: {
-                        url: self.registration.scope 
-                    }
-                };
-
-                event.waitUntil(self.registration.showNotification(title, options));
-            });
-
-            self.addEventListener('notificationclick', (event) => {
-                console.log('[Service Worker] Notification click Received.');
-                event.notification.close();
-                event.waitUntil(
-                    clients.openWindow(event.notification.data.url || '/')
-                );
-            });
-        `;
-        const swBlob = new Blob([swCode], {type: 'application/javascript'});
-        const swUrl = URL.createObjectURL(swBlob);
-
-        // =================================================================================
         // PWA SETUP
         // =================================================================================
         const manifest = {
           "name": "FixFlow - ระบบแจ้งซ่อม", "short_name": "FixFlow", "description": "เว็บแอปพลิเคชันสำหรับแจ้งซ่อมบำรุงภายในองค์กร", "start_url": ".", "display": "standalone", "background_color": "#f1f5f9", "theme_color": "#4f46e5",
           "icons": [
             { "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PGcgZmlsbD0iIzRmNDZlNSI+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSI0OCIgZmlsbD0iIzRmNDZlNSIvPjwvZz48cGF0aCBkPSJNMTQuNyA2LjNhMSAxIDAgMCAwIDAgMS40bDEuNiAxLjZhMSAxIDAgMCAwIDEuNCAwbDMuNzctMy43N2E2IDYgMCAwIDEtNy45NCA3Ljk0bC02LjkxIDYuOTFhMi4xMiAyLjEyIDAgMCAxLTMtM2w2LjkxLTYuOTFhNiA2IDAgMCAxIDcuOTQtNy45NGwtMy43NiAzLjc2eiI+PC9wYXRoPjwvc3ZnPg==", "sizes": "192x192", "type": "image/svg+xml" },
-            { "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxnIGZpbGw9IiM0ZjQ2ZTU unrelenting focus on user-centric design.iI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMjgiIGZpbGw9IiM0ZjQ2ZTU unrelenting focus on user-centric design.iIvPjwvZz48cGF0aCBkPSJNMTQuNyA6LjNhMSAxIDAgMCAwIDAgMS40bDEuNiAxLjZhMSAxIDAgMCAwIDEuNCAwbDMuNzctMy43N2E2IDYgMCAwIDEtNy45NCA3Ljk0bC02LjkxIDYuOTFhMi4xMiAyLjEyIDAgMCAxLTMtM2w2LjkxLTYuOTFhNiA2IDAgMCAxIDcuOTQtNy45NGwtMy43NiAzLjc2eiI+PC9wYXRoPjwvc3ZnPg==", "sizes": "512x512", "type": "image/svg+xml" }
+            { "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxnIGZpbGw9IiM0ZjQ2ZTU unrelenting focus on user-centric design.iI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMjgiIGZpbGw9IiM0ZjQ2ZTU unrelenting focus on user-centric design.iIvPjwvZz48cGF0aCBkPSJNMTQuNyA2LjNhMSAxIDAgMCAwIDAgMS40bDEuNiAxLjZhMSAxIDAgMCAwIDEuNCAwbDMuNzctMy43N2E2IDYgMCAwIDEtNy45NCA3Ljk0bC02LjkxIDYuOTFhMi4xMiAyLjEyIDAgMCAxLTMtM2w2LjkxLTYuOTFhNiA2IDAgMCAxIDcuOTQtNy45NGwtMy43NiAzLjc2eiI+PC9wYXRoPjwvc3ZnPg==", "sizes": "512x512", "type": "image/svg+xml" }
           ]
         };
         const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
         const manifestURL = URL.createObjectURL(manifestBlob);
         document.querySelector('#manifest').setAttribute('href', manifestURL);
+
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js').then(reg => console.log('SW registered.', reg), err => console.log('SW registration failed: ', err));
+          });
+        }
         
         let deferredPrompt;
         const installButton = document.getElementById('install-pwa-btn');
@@ -484,9 +444,6 @@
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dsmiqo5si/image/upload";
         const CLOUDINARY_UPLOAD_PRESET = "FixFlow";
         const ADMIN_IDS = ["5864101601", "5861041970", "5865121603", "5867101601"];
-        // VAPID Public Key - This key is safe to be public.
-        const VAPID_PUBLIC_KEY = 'BC6B5f0UnFTPL2x_g6jZgqYjBAA6m5Z32n5gYHJqC8Jd2y8iYg-3hQPbB0cSr2Hq4y2DqSXi4nqyfW5hJvC482Y';
-
 
         // =================================================================================
         // STATE
@@ -495,7 +452,6 @@
         let allRequests = [];
         let currentRequestId = null;
         let requestIdToDelete = null;
-        let swRegistration = null;
 
         // =================================================================================
         // DOM ELEMENTS
@@ -541,115 +497,18 @@
         const showRegisterModalBtn = document.getElementById('show-register-modal-btn');
         const registerForm = document.getElementById('register-form');
         const registerError = document.getElementById('register-error');
-        const enableNotificationsBtn = document.getElementById('enable-notifications-btn');
 
         // =================================================================================
         // HELPERS
         // =================================================================================
         const showLoading = (show) => loadingOverlay.classList.toggle('hidden', !show);
         const showModal = (modal, show) => modal.classList.toggle('hidden', !show);
-        const urlB64ToUint8Array = (base64String) => {
-            const padding = '='.repeat((4 - base64String.length % 4) % 4);
-            const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
-            const rawData = window.atob(base64);
-            const outputArray = new Uint8Array(rawData.length);
-            for (let i = 0; i < rawData.length; ++i) {
-                outputArray[i] = rawData.charCodeAt(i);
-            }
-            return outputArray;
-        };
         const statusColors = {
             "รอดำเนินการ": "bg-yellow-100 text-yellow-800",
             "กำลังดำเนินการ": "bg-blue-100 text-blue-800",
             "ซ่อมเสร็จแล้ว": "bg-green-100 text-green-800",
             "ยกเลิก": "bg-red-100 text-red-800",
         };
-        
-        // =================================================================================
-        // PUSH NOTIFICATION LOGIC
-        // =================================================================================
-        async function initializePushNotifications() {
-            if (!('serviceWorker' in navigator && 'PushManager' in window)) {
-                console.warn('Push messaging is not supported');
-                enableNotificationsBtn.classList.add('hidden');
-                return;
-            }
-            
-            try {
-                // Register service worker
-                swRegistration = await navigator.serviceWorker.register(swUrl);
-                console.log('Service Worker registered for push notifications.');
-
-                // Check current subscription status
-                const subscription = await swRegistration.pushManager.getSubscription();
-                const isSubscribed = !(subscription === null);
-
-                updateNotificationButton(isSubscribed);
-
-                if (isSubscribed) {
-                    console.log('User IS subscribed.');
-                } else {
-                    console.log('User is NOT subscribed.');
-                }
-            } catch (error) {
-                console.error('Service Worker Error', error);
-                enableNotificationsBtn.classList.add('hidden');
-            }
-        }
-
-        function updateNotificationButton(isSubscribed) {
-            if (Notification.permission === 'denied') {
-                enableNotificationsBtn.textContent = 'ถูกปิดกั้น';
-                enableNotificationsBtn.disabled = true;
-                enableNotificationsBtn.classList.add('cursor-not-allowed', 'opacity-50');
-                return;
-            }
-
-            if (isSubscribed) {
-                enableNotificationsBtn.textContent = 'รับแจ้งเตือนแล้ว';
-                enableNotificationsBtn.classList.remove('bg-amber-100', 'text-amber-800', 'hover:bg-amber-200');
-                enableNotificationsBtn.classList.add('bg-green-100', 'text-green-800');
-                enableNotificationsBtn.disabled = true; // No action needed if already subscribed
-            } else {
-                enableNotificationsBtn.textContent = 'รับการแจ้งเตือน';
-                enableNotificationsBtn.classList.remove('bg-green-100', 'text-green-800');
-                enableNotificationsBtn.classList.add('bg-amber-100', 'text-amber-800', 'hover:bg-amber-200');
-                enableNotificationsBtn.disabled = false;
-            }
-        }
-        
-        async function subscribeUserToPush() {
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission !== 'granted') {
-                    console.log('Permission not granted for Notification');
-                    updateNotificationButton(false);
-                    return;
-                }
-
-                const subscription = await swRegistration.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: urlB64ToUint8Array(VAPID_PUBLIC_KEY)
-                });
-
-                console.log('User is subscribed:', subscription);
-                
-                // Send subscription to backend
-                showLoading(true);
-                await callGasApi({ action: 'saveSubscription', subscription: subscription, userId: currentUser.id });
-                showLoading(false);
-                alert('เปิดรับการแจ้งเตือนสำเร็จ!');
-                
-                updateNotificationButton(true);
-            } catch (error) {
-                console.error('Failed to subscribe the user: ', error);
-                alert('ไม่สามารถเปิดรับการแจ้งเตือนได้');
-                showLoading(false);
-                updateNotificationButton(false);
-            }
-        }
-
-        enableNotificationsBtn.addEventListener('click', subscribeUserToPush);
 
         // =================================================================================
         // API COMMUNICATION
@@ -823,13 +682,6 @@
                     mainAppPage.classList.remove('hidden');
                     adminView.classList.toggle('hidden', !currentUser.isAdmin);
                     requesterView.classList.toggle('hidden', currentUser.isAdmin);
-
-                    // Initialize notifications for admins
-                    if(currentUser.isAdmin) {
-                        enableNotificationsBtn.classList.remove('hidden');
-                        await initializePushNotifications();
-                    }
-
                     await loadDashboardData();
                 } else {
                     loginError.textContent = 'ไม่พบรหัสพนักงานนี้ในระบบ';
@@ -844,7 +696,6 @@
         logoutButton.addEventListener('click', () => {
             currentUser = null; allRequests = []; employeeIdInput.value = '';
             mainAppPage.classList.add('hidden'); loginPage.classList.remove('hidden');
-            enableNotificationsBtn.classList.add('hidden');
         });
 
         openRequestModalBtn.addEventListener('click', () => {
