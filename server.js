@@ -15,11 +15,11 @@ app.use(bodyParser.json());
 // ควรเก็บเป็น Environment Variables ใน Production
 // สร้าง Key ได้โดยการติดตั้ง web-push globaly (npm install -g web-push)
 // แล้วรันคำสั่ง `web-push generate-vapid-keys` ใน Terminal
-const publicVapidKey = 'BMk0lCggiLrgJk3vwAcVBsRqlmZMu18XZ9ABJStYF3X5cpJgNcqzLSH0TFnEAwm0xfUi3Bk3SIZAGIWkyBLPXiY';
-const privateVapidKey = '174AphU94sp7b_eYq3uIHnvB3ni5En8oFkvNdOWjc90';
+const publicVapidKey = 'BNxogBnP7UQvmyagjJ9R1Sxa7I6_Kp-51WWewWsUEkH1Jx_km8ayUSPuTQ5Fbe2fjoF2zBchQ1KfMLJd9aCEWhI';
+const privateVapidKey = 'bP4fpbU6IR4OuOr81X4-fkLMC8iOHV7oSceLvVxz0uM';
 
 webpush.setVapidDetails(
-  'mailto:your-email@example.com', // ใช้อีเมลของคุณ
+  'stcn58@gmail.com', // ใช้อีเมลของคุณ
   publicVapidKey,
   privateVapidKey
 );
