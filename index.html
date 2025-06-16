@@ -132,7 +132,18 @@
             </header>
 
             <!-- Main Content -->
-            <main class="container mx-auto p-4 md:p-6">
+            <main class="container mx-auto p-4 md:p-6 relative">
+                 <!-- NEW: Pull to refresh indicator -->
+                <div id="pull-to-refresh" class="absolute top-0 left-1/2 -translate-x-1/2 -mt-12 z-30 flex items-center justify-center opacity-0">
+                    <div class="p-3 bg-white rounded-full shadow-lg">
+                        <svg id="ptr-arrow" class="h-6 w-6 text-indigo-600 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 4.006 4.006 0 00-3.662-.138 4.006 4.006 0 00-3.7 3.7c-.092 1.21-.138 2.43-.138 3.662a4.006 4.006 0 003.7 3.7c1.21.092 2.43.138 3.662.138a4.006 4.006 0 003.7-3.7c.092-1.21.138-2.43.138-3.662z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 19.5v-1.5m0-15V4.5m-7.5 7.5H4.5m15 0h-1.5m-12.2-4.8L6.6 6.6m10.6 0l-1.8 1.8M6.6 17.4l1.8-1.8m7.1 1.8l1.8 1.8" />
+                        </svg>
+                    </div>
+                </div>
+
                 <!-- Requester View -->
                 <div id="requester-view">
                     <div class="flex justify-between items-center mb-4">
@@ -568,18 +579,14 @@
             }
         }
         
-        // ---- NEW: Function to filter admin list by status from dashboard cards ----
         function filterByStatus(status) {
-            // Clear other filter inputs to avoid conflicts
             document.getElementById('admin-search-problem').value = '';
             document.getElementById('admin-search-date').value = '';
             document.getElementById('admin-search-category').value = '';
-
             const filtered = allRequests.filter(req => req.status === status);
             renderRequests(filtered, adminList);
         }
 
-        // ---- NEW: Add event listener for admin dashboard cards ----
         adminView.addEventListener('click', (e) => {
             const summaryCard = e.target.closest('[data-status]');
             if (summaryCard) {
@@ -701,7 +708,6 @@
             }
         }
         
-        // --- MODIFIED: Function to set up the main app view after login ---
         async function initializeUserSession(user) {
             currentUser = user;
             userNameDisplay.textContent = currentUser.name;
@@ -731,7 +737,6 @@
                 const userData = await callGasApi({ action: 'login', employeeId: id });
                 if (userData) {
                     const user = { id: userData.id, name: userData.name, isAdmin: ADMIN_IDS.includes(String(userData.id)) };
-                    // --- MODIFIED: Save user to localStorage ---
                     localStorage.setItem('currentUser', JSON.stringify(user));
                     await initializeUserSession(user);
                 } else {
@@ -745,7 +750,6 @@
         });
 
         logoutButton.addEventListener('click', () => {
-            // --- MODIFIED: Clear localStorage on logout and reload page ---
             localStorage.removeItem('currentUser');
             window.location.reload();
         });
@@ -930,7 +934,80 @@
             finally { showLoading(false); submitBtn.disabled = false; }
         });
 
-        // --- NEW: Run this when the script loads to check for a saved user ---
+        // --- NEW: Pull to refresh logic ---
+        const ptrElement = document.getElementById('pull-to-refresh');
+        const ptrArrow = document.getElementById('ptr-arrow');
+        
+        let ptrStartY = 0;
+        let isRefreshing = false;
+        const ptrThreshold = 90; // How far to pull down in pixels
+
+        document.body.addEventListener('touchstart', (e) => {
+            if (window.scrollY === 0 && !isRefreshing) {
+                ptrStartY = e.touches[0].clientY;
+                 ptrElement.style.transition = 'none';
+            } else {
+                ptrStartY = -1; // Reset if not at top
+            }
+        }, { passive: true });
+
+        document.body.addEventListener('touchmove', (e) => {
+            if (ptrStartY === -1 || isRefreshing) return;
+
+            const currentY = e.touches[0].clientY;
+            const pullDistance = currentY - ptrStartY;
+
+            if (pullDistance > 0 && window.scrollY === 0) {
+                e.preventDefault(); // Prevent browser's native pull-to-refresh
+
+                const pullAmount = Math.max(0, pullDistance);
+                ptrElement.style.opacity = Math.min(pullAmount / ptrThreshold, 1);
+                ptrElement.style.transform = `translate(-50%, ${Math.min(pullAmount, ptrThreshold*1.2) - 48}px)`;
+
+                if (pullAmount > ptrThreshold) {
+                    ptrArrow.style.transform = 'rotate(180deg)';
+                } else {
+                    ptrArrow.style.transform = 'rotate(0deg)';
+                }
+            }
+        }, { passive: false });
+
+        document.body.addEventListener('touchend', async (e) => {
+            if (ptrStartY === -1 || isRefreshing) return;
+
+            const currentY = e.changedTouches[0].clientY;
+            const pullDistance = currentY - ptrStartY;
+            
+            ptrElement.style.transition = 'all 0.3s ease';
+            ptrArrow.style.transform = 'rotate(0deg)';
+
+            if (pullDistance > ptrThreshold) {
+                isRefreshing = true;
+                ptrElement.style.transform = 'translate(-50%, 24px)'; // Move to visible "loading" position
+                ptrArrow.classList.add('animate-spin');
+
+                try {
+                    await loadDashboardData();
+                } catch (error) {
+                    console.error("Pull to refresh failed:", error);
+                } finally {
+                    // Hide after a short delay
+                    setTimeout(() => {
+                        ptrElement.style.transform = 'translate(-50%, -48px)';
+                        ptrElement.style.opacity = '0';
+                        isRefreshing = false;
+                        ptrArrow.classList.remove('animate-spin');
+                    }, 500);
+                }
+            } else {
+                // Snap back if threshold not met
+                ptrElement.style.transform = 'translate(-50%, -48px)';
+                ptrElement.style.opacity = '0';
+            }
+            
+            ptrStartY = -1; // Reset
+        });
+
         (async () => {
             const savedUserJSON = localStorage.getItem('currentUser');
             if (savedUserJSON) {
