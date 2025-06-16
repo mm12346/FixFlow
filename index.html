@@ -170,19 +170,19 @@
                     
                     <!-- Summary Cards -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-yellow-400">
+                        <div data-status="รอดำเนินการ" class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-yellow-400 cursor-pointer hover:bg-yellow-50 transition-colors">
                             <p class="text-sm font-medium text-slate-500">รอดำเนินการ</p>
                             <p id="summary-pending" class="text-3xl font-bold text-slate-800 mt-1">0</p>
                         </div>
-                        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-400">
+                        <div data-status="กำลังดำเนินการ" class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-400 cursor-pointer hover:bg-blue-50 transition-colors">
                             <p class="text-sm font-medium text-slate-500">กำลังดำเนินการ</p>
                             <p id="summary-inprogress" class="text-3xl font-bold text-slate-800 mt-1">0</p>
                         </div>
-                        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-400">
+                        <div data-status="ซ่อมเสร็จแล้ว" class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-400 cursor-pointer hover:bg-green-50 transition-colors">
                             <p class="text-sm font-medium text-slate-500">ซ่อมเสร็จแล้ว</p>
                             <p id="summary-completed" class="text-3xl font-bold text-slate-800 mt-1">0</p>
                         </div>
-                        <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-400">
+                        <div data-status="ยกเลิก" class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-400 cursor-pointer hover:bg-red-50 transition-colors">
                             <p class="text-sm font-medium text-slate-500">ยกเลิก</p>
                             <p id="summary-cancelled" class="text-3xl font-bold text-slate-800 mt-1">0</p>
                         </div>
@@ -191,8 +191,8 @@
                     <!-- Admin Filters -->
                     <div class="bg-white p-4 rounded-lg shadow-sm mb-4">
                         <h3 class="font-bold mb-3">ค้นหารายการแจ้งซ่อม</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <input type="text" id="admin-search-problem" placeholder="ค้นหาตามชื่อปัญหา..." class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                            <input type="text" id="admin-search-problem" placeholder="ค้นหาตามชื่อปัญหา..." class="w-full px-3 py-2 border border-slate-300 rounded-lg md:col-span-2">
                             <input type="date" id="admin-search-date" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
                             <select id="admin-search-category" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
                                 <option value="">ทุกหมวดหมู่</option>
@@ -409,14 +409,12 @@
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dsmiqo5si/image/upload";
         const CLOUDINARY_UPLOAD_PRESET = "FixFlow";
         const ADMIN_IDS = ["5864101601", "5861041970", "5865121603", "5867101601"];
-        
-        // NEW: URL ของ Backend Server และ VAPID Public Key ของคุณ
-        const BACKEND_SERVER_URL = "https://fixflow.onrender.com"; // เช่น https://your-app.onrender.com
-        const VAPID_PUBLIC_KEY = "BNxogBnP7UQvmyagjJ9R1Sxa7I6_Kp-51WWewWsUEkH1Jx_km8ayUSPuTQ5Fbe2fjoF2zBchQ1KfMLJd9aCEWhI"; // << ใส่ Public Key ที่สร้างจาก web-push
+        const BACKEND_SERVER_URL = "https://fixflow.onrender.com";
+        const VAPID_PUBLIC_KEY = "BNxogBnP7UQvmyagjJ9R1Sxa7I6_Kp-51WWewWsUEkH1Jx_km8ayUSPuTQ5Fbe2fjoF2zBchQ1KfMLJd9aCEWhI";
 
 
         // =================================================================================
-        // PWA & NOTIFICATION LOGIC (Vanilla JS)
+        // PWA & NOTIFICATION LOGIC
         // =================================================================================
         if ('serviceWorker' in navigator) {
           window.addEventListener('load', () => {
@@ -442,7 +440,6 @@
             }
         });
         
-        // Helper function to convert VAPID key
         function urlBase64ToUint8Array(base64String) {
             const padding = '='.repeat((4 - base64String.length % 4) % 4);
             const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -454,48 +451,34 @@
             return outputArray;
         }
 
-        // Function to request permission and save subscription
         async function subscribeUserToPush() {
             try {
                 const registration = await navigator.serviceWorker.ready;
                 const permission = await Notification.requestPermission();
-                
                 if (permission !== 'granted') {
                     console.log('Notification permission not granted.');
                     alert('คุณต้องอนุญาตการแจ้งเตือนเพื่อรับอัปเดต');
                     return;
                 }
-
                 const subscription = await registration.pushManager.subscribe({
                     userVisibleOnly: true,
                     applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
                 });
-
-                console.log('User is subscribed:', subscription);
-                
-                // Send subscription to backend server
                 await fetch(`${BACKEND_SERVER_URL}/save-subscription`, {
-                    method: 'POST',
-                    body: JSON.stringify(subscription),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                    method: 'POST', body: JSON.stringify(subscription), headers: { 'Content-Type': 'application/json' }
                 });
-                console.log('Subscription sent to server.');
                 alert('ลงทะเบียนรับการแจ้งเตือนสำเร็จ!');
-
             } catch (error) {
                 console.error('Failed to subscribe the user: ', error);
                 alert('เกิดข้อผิดพลาดในการลงทะเบียนรับการแจ้งเตือน');
             }
         }
         
-        // Notification Button listener
         const notificationButton = document.getElementById('notification-btn');
         notificationButton.addEventListener('click', subscribeUserToPush);
         
         // =================================================================================
-        // EXISTING APP LOGIC
+        // APP LOGIC
         // =================================================================================
         let currentUser = null;
         let allRequests = [];
@@ -560,12 +543,8 @@
                 });
                 
                 const result = await response.json();
-                if (result.status === 'error') {
-                    throw new Error(result.message || 'เกิดข้อผิดพลาดจาก API');
-                }
-                if (!response.ok) {
-                    throw new Error(`Network response was not ok, status: ${response.status}`);
-                }
+                if (result.status === 'error') throw new Error(result.message || 'เกิดข้อผิดพลาดจาก API');
+                if (!response.ok) throw new Error(`Network response was not ok, status: ${response.status}`);
                 return result.data;
             } catch (error) {
                 console.error("API Call Error:", error);
@@ -588,6 +567,27 @@
                 return null;
             }
         }
+        
+        // ---- NEW: Function to filter admin list by status from dashboard cards ----
+        function filterByStatus(status) {
+            // Clear other filter inputs to avoid conflicts
+            document.getElementById('admin-search-problem').value = '';
+            document.getElementById('admin-search-date').value = '';
+            document.getElementById('admin-search-category').value = '';
+
+            const filtered = allRequests.filter(req => req.status === status);
+            renderRequests(filtered, adminList);
+        }
+
+        // ---- NEW: Add event listener for admin dashboard cards ----
+        adminView.addEventListener('click', (e) => {
+            const summaryCard = e.target.closest('[data-status]');
+            if (summaryCard) {
+                const statusToFilter = summaryCard.dataset.status;
+                filterByStatus(statusToFilter);
+            }
+        });
+
 
         function updateSummaryCards(requests) {
             const counts = { pending: 0, inprogress: 0, completed: 0, cancelled: 0 };
@@ -670,7 +670,6 @@
                 document.getElementById('cancellation-comment-input').value = request.adminComment || '';
                 const isCompleted = request.status === 'ซ่อมเสร็จแล้ว';
                 uploadAfterImageSection.classList.toggle('hidden', !isCompleted);
-
                 if (isCompleted) {
                     changeAfterImageBtn.classList.toggle('hidden', !request.afterImageUrl);
                     initialUploadContainer.classList.toggle('hidden', !!request.afterImageUrl);
@@ -686,7 +685,7 @@
             try {
                 const data = await callGasApi({ action: 'getRequests' });
                 if (data) {
-                    allRequests = data.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    allRequests = data.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
                     if (currentUser.isAdmin) {
                         updateSummaryCards(allRequests);
                         renderRequests(allRequests, adminList);
@@ -702,6 +701,23 @@
             }
         }
         
+        // --- MODIFIED: Function to set up the main app view after login ---
+        async function initializeUserSession(user) {
+            currentUser = user;
+            userNameDisplay.textContent = currentUser.name;
+            userIdDisplay.textContent = `ID: ${currentUser.id}`;
+            loginPage.classList.add('hidden');
+            mainAppPage.classList.remove('hidden');
+            adminView.classList.toggle('hidden', !currentUser.isAdmin);
+            requesterView.classList.toggle('hidden', currentUser.isAdmin);
+            
+            if (currentUser.isAdmin) {
+                notificationButton.classList.remove('hidden');
+            }
+            
+            await loadDashboardData();
+        }
+
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = employeeIdInput.value;
@@ -714,20 +730,10 @@
             try {
                 const userData = await callGasApi({ action: 'login', employeeId: id });
                 if (userData) {
-                    currentUser = { id: userData.id, name: userData.name, isAdmin: ADMIN_IDS.includes(String(userData.id)) };
-                    userNameDisplay.textContent = currentUser.name;
-                    userIdDisplay.textContent = `ID: ${currentUser.id}`;
-                    loginPage.classList.add('hidden');
-                    mainAppPage.classList.remove('hidden');
-                    adminView.classList.toggle('hidden', !currentUser.isAdmin);
-                    requesterView.classList.toggle('hidden', currentUser.isAdmin);
-                    
-                    // Show notification button for admins
-                    if (currentUser.isAdmin) {
-                        notificationButton.classList.remove('hidden');
-                    }
-                    
-                    await loadDashboardData();
+                    const user = { id: userData.id, name: userData.name, isAdmin: ADMIN_IDS.includes(String(userData.id)) };
+                    // --- MODIFIED: Save user to localStorage ---
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    await initializeUserSession(user);
                 } else {
                     loginError.textContent = 'ไม่พบรหัสพนักงานนี้ในระบบ';
                 }
@@ -739,8 +745,9 @@
         });
 
         logoutButton.addEventListener('click', () => {
-            currentUser = null; allRequests = []; employeeIdInput.value = '';
-            mainAppPage.classList.add('hidden'); loginPage.classList.remove('hidden');
+            // --- MODIFIED: Clear localStorage on logout and reload page ---
+            localStorage.removeItem('currentUser');
+            window.location.reload();
         });
 
         openRequestModalBtn.addEventListener('click', () => {
@@ -760,16 +767,13 @@
             submitBtn.disabled = true;
             submitBtn.textContent = 'กำลังส่ง...';
             showLoading(true);
-
             try {
                 const formData = new FormData(newRequestForm);
                 let imageUrl = '';
                 const imageFile = formData.get('image');
                 if (imageFile && imageFile.size > 0) {
                     const uploadedUrl = await uploadToCloudinary(imageFile);
-                    if (!uploadedUrl) {
-                         submitBtn.disabled = false; submitBtn.textContent = 'ส่งเรื่อง'; showLoading(false); return;
-                    }
+                    if (!uploadedUrl) { submitBtn.disabled = false; submitBtn.textContent = 'ส่งเรื่อง'; showLoading(false); return; }
                     imageUrl = uploadedUrl;
                 }
                 const requestData = { problem: formData.get('problem'), category: formData.get('category'), location: formData.get('location'), details: formData.get('details'), beforeImageUrl: imageUrl, requesterId: currentUser.id, requesterName: currentUser.name };
@@ -779,54 +783,35 @@
                     showModal(requestModal, false);
                     await loadDashboardData();
                 }
-            } catch (error) {
-                console.error("Submit error", error);
-            } finally {
-                showLoading(false);
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'ส่งเรื่อง';
-            }
+            } catch (error) { console.error("Submit error", error); } 
+            finally { showLoading(false); submitBtn.disabled = false; submitBtn.textContent = 'ส่งเรื่อง'; }
         });
         
         imageInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (event) => {
-                    imagePreview.src = event.target.result;
-                    imagePreview.classList.remove('hidden');
-                }
+                reader.onload = (event) => { imagePreview.src = event.target.result; imagePreview.classList.remove('hidden'); }
                 reader.readAsDataURL(file);
-            } else {
-                imagePreview.classList.add('hidden');
-            }
+            } else { imagePreview.classList.add('hidden'); }
         });
 
         document.getElementById('app').addEventListener('click', (e) => {
              const card = e.target.closest('.request-card');
              if (card && !e.target.closest('.delete-btn')) { 
-                document.querySelectorAll('.request-card-wrapper.is-swiped').forEach(swipedCard => {
-                    swipedCard.classList.remove('is-swiped');
-                });
-                const requestId = card.dataset.id;
-                const requestData = allRequests.find(r => r.id === requestId);
+                document.querySelectorAll('.request-card-wrapper.is-swiped').forEach(swipedCard => { swipedCard.classList.remove('is-swiped'); });
+                const requestData = allRequests.find(r => r.id === card.dataset.id);
                 if (requestData) populateDetailsModal(requestData);
              }
              if (e.target.classList.contains('zoomable-image') && e.target.src && !e.target.src.includes('placehold.co')) {
-                zoomedImage.src = e.target.src;
-                showModal(imageZoomModal, true);
+                zoomedImage.src = e.target.src; showModal(imageZoomModal, true);
              }
              if (e.target.closest('.delete-btn')) {
-                requestIdToDelete = e.target.closest('.delete-btn').dataset.id;
-                showModal(confirmDeleteModal, true);
+                requestIdToDelete = e.target.closest('.delete-btn').dataset.id; showModal(confirmDeleteModal, true);
              }
         });
         
-        imageZoomModal.addEventListener('click', () => {
-            showModal(imageZoomModal, false);
-            zoomedImage.src = ''; 
-        });
-
+        imageZoomModal.addEventListener('click', () => { showModal(imageZoomModal, false); zoomedImage.src = ''; });
 
         updateStatusBtn.addEventListener('click', async () => {
             updateStatusBtn.disabled = true;
@@ -834,32 +819,19 @@
             const payload = { action: 'updateStatus', id: currentRequestId, status: newStatus, updaterName: currentUser.name };
             if (newStatus === 'ยกเลิก') {
                 const comment = document.getElementById('cancellation-comment-input').value.trim();
-                if (!comment) { 
-                    alert('กรุณากรอกเหตุผลการยกเลิก'); 
-                    updateStatusBtn.disabled = false;
-                    return; 
-                }
+                if (!comment) { alert('กรุณากรอกเหตุผลการยกเลิก'); updateStatusBtn.disabled = false; return; }
                 payload.comment = comment;
             }
             showLoading(true);
             try {
                 const result = await callGasApi(payload);
-                if(result) {
-                    alert('อัปเดตสถานะสำเร็จ');
-                    showModal(detailsModal, false);
-                    await loadDashboardData();
-                }
-            } catch (error) {
-                console.error("Update status error:", error);
-            } finally {
-                showLoading(false);
-                updateStatusBtn.disabled = false;
-            }
+                if(result) { alert('อัปเดตสถานะสำเร็จ'); showModal(detailsModal, false); await loadDashboardData(); }
+            } catch (error) { console.error("Update status error:", error); } 
+            finally { showLoading(false); updateStatusBtn.disabled = false; }
         });
         
         updateStatusSelect.addEventListener('change', (e) => {
-            const isCancelled = e.target.value === 'ยกเลิก';
-            cancellationCommentSection.classList.toggle('hidden', !isCancelled);
+            cancellationCommentSection.classList.toggle('hidden', e.target.value !== 'ยกเลิก');
             uploadAfterImageSection.classList.toggle('hidden', e.target.value !== 'ซ่อมเสร็จแล้ว');
         });
 
@@ -877,67 +849,40 @@
                     if (result) {
                         alert('อัปเดตรูปภาพหลังแก้ไขสำเร็จ');
                         const requestData = allRequests.find(r => r.id === currentRequestId);
-                        if (requestData) {
-                            requestData.afterImageUrl = imageUrl;
-                            populateDetailsModal(requestData);
-                        }
+                        if (requestData) { requestData.afterImageUrl = imageUrl; populateDetailsModal(requestData); }
                         await loadDashboardData();
                     }
                 }
-            } catch (error) {
-                console.error("Upload after image error:", error);
-            } finally {
-                showLoading(false);
-            }
+            } catch (error) { console.error("Upload after image error:", error); } 
+            finally { showLoading(false); }
         });
         
         const handleFilter = (isRequester) => {
             const problemInput = document.getElementById(isRequester ? 'requester-search-problem' : 'admin-search-problem');
             const dateInput = document.getElementById(isRequester ? 'requester-search-date' : 'admin-search-date');
             const categoryInput = document.getElementById(isRequester ? 'requester-search-category' : 'admin-search-category');
-            
-            const problem = problemInput.value.toLowerCase();
-            const date = dateInput.value;
-            const category = categoryInput.value;
-
+            const problem = problemInput.value.toLowerCase(), date = dateInput.value, category = categoryInput.value;
             const sourceData = isRequester ? allRequests.filter(r => String(r.requesterId) === String(currentUser.id)) : allRequests;
-            
             const filtered = sourceData.filter(req => {
                 const reqDate = req.date.split('T')[0]; 
-                return (problem ? req.problem.toLowerCase().includes(problem) : true) &&
-                       (date ? reqDate === date : true) &&
-                       (category ? req.category === category : true);
+                return (problem ? req.problem.toLowerCase().includes(problem) : true) && (date ? reqDate === date : true) && (category ? req.category === category : true);
             });
-
             renderRequests(filtered, isRequester ? requesterList : adminList);
         };
 
         adminFilterBtn.addEventListener('click', () => handleFilter(false));
         requesterFilterBtn.addEventListener('click', () => handleFilter(true));
         
-        // Enhanced Swipe to delete logic
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let currentSwipedWrapper = null;
-        let currentSwipedCard = null;
-        let isScrolling;
-        const swipeThreshold = -50;
-        const maxSwipe = -80;
-
+        let touchStartX = 0, touchStartY = 0, currentSwipedWrapper = null, currentSwipedCard = null, isScrolling;
+        const swipeThreshold = -50, maxSwipe = -80;
         requesterList.addEventListener('touchstart', (e) => {
             const wrapper = e.target.closest('.request-card-wrapper');
             if (!wrapper) return;
-            document.querySelectorAll('.request-card-wrapper.is-swiped').forEach(swipedCard => {
-                if (swipedCard !== wrapper) swipedCard.classList.remove('is-swiped');
-            });
-            currentSwipedWrapper = wrapper;
-            currentSwipedCard = wrapper.querySelector('.request-card');
-            touchStartX = e.targetTouches[0].clientX;
-            touchStartY = e.targetTouches[0].clientY;
-            isScrolling = undefined;
-            currentSwipedCard.style.transition = 'none';
+            document.querySelectorAll('.request-card-wrapper.is-swiped').forEach(swipedCard => { if (swipedCard !== wrapper) swipedCard.classList.remove('is-swiped'); });
+            currentSwipedWrapper = wrapper; currentSwipedCard = wrapper.querySelector('.request-card');
+            touchStartX = e.targetTouches[0].clientX; touchStartY = e.targetTouches[0].clientY;
+            isScrolling = undefined; currentSwipedCard.style.transition = 'none';
         }, { passive: true });
-
         requesterList.addEventListener('touchmove', (e) => {
             if (!currentSwipedWrapper) return;
             if (typeof isScrolling === 'undefined') isScrolling = Math.abs(e.targetTouches[0].clientY - touchStartY) > Math.abs(e.targetTouches[0].clientX - touchStartX);
@@ -947,88 +892,54 @@
             const newX = Math.min(0, Math.max(maxSwipe - 10, deltaX));
             currentSwipedCard.style.transform = `translateX(${newX}px)`;
         }, { passive: false });
-
         requesterList.addEventListener('touchend', (e) => {
-            if (!currentSwipedCard || isScrolling) {
-                isScrolling = undefined; currentSwipedCard = null; currentSwipedWrapper = null;
-                return;
-            };
+            if (!currentSwipedCard || isScrolling) { isScrolling = undefined; currentSwipedCard = null; currentSwipedWrapper = null; return; };
             currentSwipedCard.style.transition = 'transform 0.3s ease-out';
-            const finalX = e.changedTouches[0].clientX - touchStartX;
-            if (finalX < swipeThreshold) {
-                currentSwipedWrapper.classList.add('is-swiped');
-            } else {
-                currentSwipedWrapper.classList.remove('is-swiped');
-            }
-            currentSwipedCard.style.transform = '';
-            currentSwipedCard = null;
-            isScrolling = undefined;
+            if (e.changedTouches[0].clientX - touchStartX < swipeThreshold) { currentSwipedWrapper.classList.add('is-swiped'); } 
+            else { currentSwipedWrapper.classList.remove('is-swiped'); }
+            currentSwipedCard.style.transform = ''; currentSwipedCard = null; isScrolling = undefined;
         });
 
-        confirmDeleteNoBtn.addEventListener('click', () => {
-            showModal(confirmDeleteModal, false);
-            requestIdToDelete = null;
-        });
-
+        confirmDeleteNoBtn.addEventListener('click', () => { showModal(confirmDeleteModal, false); requestIdToDelete = null; });
         confirmDeleteYesBtn.addEventListener('click', async () => {
             if (!requestIdToDelete) return;
-            showModal(confirmDeleteModal, false);
-            showLoading(true);
+            showModal(confirmDeleteModal, false); showLoading(true);
             try {
                 const result = await callGasApi({ action: 'deleteRequest', id: requestIdToDelete });
-                if (result && result.success) {
-                    alert('ลบรายการสำเร็จ');
-                    await loadDashboardData();
-                }
-            } catch (error) {
-                alert(error.message);
-            } finally {
-                requestIdToDelete = null;
-                showLoading(false);
-            }
+                if (result && result.success) { alert('ลบรายการสำเร็จ'); await loadDashboardData(); }
+            } catch (error) { alert(error.message); } 
+            finally { requestIdToDelete = null; showLoading(false); }
         });
 
-        // Registration Modal Logic
         showRegisterModalBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            registerForm.reset();
-            registerError.textContent = '';
-            showModal(registerModal, true);
+            e.preventDefault(); registerForm.reset(); registerError.textContent = ''; showModal(registerModal, true);
         });
-
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const fullNameInput = document.getElementById('register-full-name');
-            const employeeIdInput = document.getElementById('register-employee-id');
-            const fullName = fullNameInput.value.trim();
-            const employeeId = employeeIdInput.value.trim();
-
+            const fullName = document.getElementById('register-full-name').value.trim();
+            const employeeId = document.getElementById('register-employee-id').value.trim();
             registerError.textContent = '';
-            if (!fullName || !employeeId) {
-                registerError.textContent = 'กรุณากรอกข้อมูลให้ครบถ้วน';
-                return;
-            }
-            if (!/^\d{10}$/.test(employeeId)) {
-                registerError.textContent = 'รหัสพนักงานต้องเป็นตัวเลข 10 หลัก';
-                return;
-            }
-            
+            if (!fullName || !employeeId) { registerError.textContent = 'กรุณากรอกข้อมูลให้ครบถ้วน'; return; }
+            if (!/^\d{10}$/.test(employeeId)) { registerError.textContent = 'รหัสพนักงานต้องเป็นตัวเลข 10 หลัก'; return; }
             const submitBtn = e.submitter;
-            submitBtn.disabled = true;
-            showLoading(true);
+            submitBtn.disabled = true; showLoading(true);
             try {
                 const result = await callGasApi({ action: 'registerUser', name: fullName, employeeId: employeeId });
-                if (result && result.success) {
-                    alert('ลงทะเบียนสำเร็จ! สามารถใช้รหัสนี้เข้าสู่ระบบได้ทันที');
-                    showModal(registerModal, false);
-                }
-            } catch (error) {
-                registerError.textContent = error.message;
-            } finally {
-                showLoading(false);
-                submitBtn.disabled = false;
-            }
+                if (result && result.success) { alert('ลงทะเบียนสำเร็จ! สามารถใช้รหัสนี้เข้าสู่ระบบได้ทันที'); showModal(registerModal, false); }
+            } catch (error) { registerError.textContent = error.message; } 
+            finally { showLoading(false); submitBtn.disabled = false; }
         });
+
+        // --- NEW: Run this when the script loads to check for a saved user ---
+        (async () => {
+            const savedUserJSON = localStorage.getItem('currentUser');
+            if (savedUserJSON) {
+                showLoading(true);
+                const savedUser = JSON.parse(savedUserJSON);
+                await initializeUserSession(savedUser);
+                showLoading(false);
+            }
+        })();
 
     </script>
 </body>
