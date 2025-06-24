@@ -69,13 +69,6 @@
         .request-card-wrapper.is-swiped .request-card {
             transform: translateX(-80px);
         }
-        /* Rating stars style */
-        .rating-star.selected, .rating-star:hover {
-            color: #f59e0b; /* amber-500 */
-        }
-        .rating-star:hover ~ .rating-star {
-            color: #d1d5db; /* slate-300 */
-        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -119,19 +112,6 @@
                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
                         <h1 class="text-2xl font-bold text-indigo-600">FixFlow</h1>
                     </div>
-                <div class="flex items-center justify-center md:justify-start gap-2 p-2 bg-slate-50 rounded-lg">
-                    <div class="flex items-center gap-2">
-                             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="text-amber-500" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                             <div>
-                                <p class="text-sm text-slate-500" id="summary-rating">0.0</p>
-                                <p class="text-sm text-slate-500" id="summary-rating-count">จาก 0 งาน</p>
-                            </div>
-                            
-                    </div>
-                </div>
-
                     <div class="flex items-center gap-2">
                         <button id="notification-btn" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold p-2 rounded-full transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -153,7 +133,7 @@
 
             <!-- Main Content -->
             <main class="container mx-auto p-4 md:p-6 relative">
-                 <!-- Pull to refresh indicator -->
+                 <!-- NEW: Pull to refresh indicator -->
                 <div id="pull-to-refresh" class="absolute top-0 left-1/2 -translate-x-1/2 -mt-12 z-30 flex items-center justify-center opacity-0">
                     <div class="p-3 bg-white rounded-full shadow-lg">
                         <svg id="ptr-arrow" class="h-6 w-6 text-indigo-600 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -338,45 +318,8 @@
                         <img id="details-after-image" src="https://placehold.co/600x400/e2e8f0/a0aec0?text=รออัปโหลด" class="w-full h-auto rounded-lg shadow-sm zoomable-image cursor-zoom-in" alt="รูปภาพหลังแก้ไข">
                     </div>
                 </div>
-
-                <!-- NEW: Rating Display Section -->
-                <div id="rating-display-section" class="hidden mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
-                    <h4 class="font-bold text-lg text-amber-800">ผลการประเมิน</h4>
-                    <div class="flex items-center mt-2">
-                        <div id="rating-display-stars" class="flex text-yellow-500 text-2xl">
-                            <!-- Stars will be injected here -->
-                        </div>
-                        <p class="ml-3 text-slate-700 font-semibold"><span id="rating-display-score"></span> จาก 5 ดาว</p>
-                    </div>
-                    <div id="rating-display-comment-container" class="mt-2 hidden">
-                        <strong class="font-semibold">ความคิดเห็น:</strong>
-                        <p class="mt-1 text-slate-600 bg-white p-3 rounded-lg" id="rating-display-comment"></p>
-                    </div>
-                </div>
-
             </div>
             
-            <!-- NEW: Requester Rating Controls -->
-            <div id="requester-rating-controls" class="bg-slate-100 p-4 md:p-6 mt-4 hidden rounded-b-2xl">
-                <h4 class="font-bold mb-2 text-lg">ให้คะแนนความพึงพอใจ</h4>
-                <p class="text-sm text-slate-600 mb-4">โปรดให้คะแนนการซ่อมครั้งนี้เพื่อนำไปพัฒนาปรับปรุงต่อไป</p>
-                <div class="flex items-center justify-center space-x-2 text-4xl text-slate-300 mb-4" id="rating-stars-input">
-                    <button data-value="1" class="rating-star hover:text-yellow-400 transition-colors">★</button>
-                    <button data-value="2" class="rating-star hover:text-yellow-400 transition-colors">★</button>
-                    <button data-value="3" class="rating-star hover:text-yellow-400 transition-colors">★</button>
-                    <button data-value="4" class="rating-star hover:text-yellow-400 transition-colors">★</button>
-                    <button data-value="5" class="rating-star hover:text-yellow-400 transition-colors">★</button>
-                </div>
-                <input type="hidden" id="rating-value" value="0">
-                <div>
-                    <label for="rating-comment" class="block text-sm font-medium text-slate-700">ความคิดเห็นเพิ่มเติม (ถ้ามี)</label>
-                    <textarea id="rating-comment" rows="3" class="mt-1 w-full px-3 py-2 border border-slate-300 rounded-lg"></textarea>
-                </div>
-                <div class="mt-4 text-right">
-                    <button id="submit-rating-btn" class="bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-indigo-700 disabled:bg-indigo-300" disabled>ส่งคะแนน</button>
-                </div>
-            </div>
-
             <!-- Admin Controls -->
             <div id="admin-controls" class="bg-slate-50 p-4 md:p-6 mt-4 hidden">
                  <h4 class="font-bold mb-4 text-lg">จัดการสถานะ (สำหรับช่าง)</h4>
@@ -550,7 +493,6 @@
         let allRequests = [];
         let currentRequestId = null;
         let requestIdToDelete = null;
-        let currentRating = 0;
 
         const loadingOverlay = document.getElementById('loading-overlay');
         const loginPage = document.getElementById('login-page');
@@ -594,18 +536,6 @@
         const registerForm = document.getElementById('register-form');
         const registerError = document.getElementById('register-error');
 
-        // NEW: Rating elements
-        const ratingDisplaySection = document.getElementById('rating-display-section');
-        const ratingDisplayStars = document.getElementById('rating-display-stars');
-        const ratingDisplayScore = document.getElementById('rating-display-score');
-        const ratingDisplayCommentContainer = document.getElementById('rating-display-comment-container');
-        const ratingDisplayComment = document.getElementById('rating-display-comment');
-        const requesterRatingControls = document.getElementById('requester-rating-controls');
-        const ratingStarsInput = document.getElementById('rating-stars-input');
-        const ratingValueInput = document.getElementById('rating-value');
-        const ratingCommentInput = document.getElementById('rating-comment');
-        const submitRatingBtn = document.getElementById('submit-rating-btn');
-
         const showLoading = (show) => loadingOverlay.classList.toggle('hidden', !show);
         const showModal = (modal, show) => modal.classList.toggle('hidden', !show);
         const statusColors = {
@@ -617,8 +547,6 @@
 
         async function callGasApi(payload) {
             try {
-                // IMPORTANT: Make sure your Google Apps Script is updated to handle 'updateRating' action
-                // And the 'getRequests' action should return 'rating' and 'ratingComment' fields.
                 const response = await fetch(GAS_API_URL, {
                     method: 'POST', mode: 'cors', cache: 'no-cache', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload)
                 });
@@ -665,51 +593,23 @@
             }
         });
 
-        // UPDATED: Function to update summary cards including average rating
+
         function updateSummaryCards(requests) {
             const counts = { pending: 0, inprogress: 0, completed: 0, cancelled: 0 };
-            let totalRating = 0;
-            let ratedCount = 0;
-
             requests.forEach(req => {
                 if (req.status === 'รอดำเนินการ') counts.pending++;
                 else if (req.status === 'กำลังดำเนินการ') counts.inprogress++;
-                else if (req.status === 'ซ่อมเสร็จแล้ว') {
-                    counts.completed++;
-                    // Add to rating calculation if the job is completed and rated
-                    if (req.rating && Number(req.rating) > 0) {
-                        totalRating += Number(req.rating);
-                        ratedCount++;
-                    }
-                }
+                else if (req.status === 'ซ่อมเสร็จแล้ว') counts.completed++;
                 else if (req.status === 'ยกเลิก') counts.cancelled++;
             });
-
             document.getElementById('summary-pending').textContent = counts.pending;
             document.getElementById('summary-inprogress').textContent = counts.inprogress;
             document.getElementById('summary-completed').textContent = counts.completed;
             document.getElementById('summary-cancelled').textContent = counts.cancelled;
-            
-            // NEW: Update rating summary
-            const averageRating = ratedCount > 0 ? (totalRating / ratedCount).toFixed(1) : '0.0';
-            document.getElementById('summary-rating').textContent = averageRating;
-            document.getElementById('summary-rating-count').textContent = `(จาก ${ratedCount} งาน)`;
         }
 
         function createRequestCard(request) {
             const colorClass = statusColors[request.status] || "bg-slate-100 text-slate-800";
-            
-            let statusDisplay = `<span class="text-xs font-semibold px-2 py-1 rounded-full ${colorClass}">${request.status}</span>`;
-            
-            // Add rating indicator for requester
-            if (!currentUser.isAdmin && request.status === 'ซ่อมเสร็จแล้ว') {
-                if (!request.rating) {
-                    statusDisplay += `<span class="ml-2 text-xs font-semibold px-2 py-1 rounded-full bg-amber-200 text-amber-800">โปรดให้คะแนน</span>`;
-                } else {
-                    statusDisplay += `<span class="ml-2 text-xs font-semibold px-2 py-1 rounded-full bg-gray-200 text-gray-700 flex items-center">✔ ให้คะแนนแล้ว</span>`;
-                }
-            }
-            
             return `
                  <div class="request-card-wrapper">
                     <div class="delete-action">
@@ -720,10 +620,7 @@
                         </button>
                     </div>
                     <div class="request-card bg-white p-4 rounded-xl shadow-md hover:shadow-lg transition-shadow cursor-pointer border-l-4 ${colorClass.replace('bg-', 'border-').replace('-100', '-500')}" data-id="${request.id}">
-                        <div class="flex justify-between items-start">
-                            <p class="font-bold text-lg truncate">${request.problem}</p>
-                            <div class="flex items-center">${statusDisplay}</div>
-                        </div>
+                        <div class="flex justify-between items-start"><p class="font-bold text-lg truncate">${request.problem}</p><span class="text-xs font-semibold px-2 py-1 rounded-full ${colorClass}">${request.status}</span></div>
                          <p class="text-sm text-slate-500 mt-1">หมวด: ${request.category}</p>
                          <div class="flex justify-between items-center mt-3 text-sm text-slate-400"><span>พื้นที่: ${request.location}</span><span>ช่างเทคนิค: ${request.updatedBy || '-'}</span></div>
                         <div class="flex justify-between items-center mt-3 text-sm text-slate-400"><span>แจ้ง: ${new Date(request.date).toLocaleDateString('th-TH')}</span><span>อัพเดต: ${new Date(request.lastUpdated).toLocaleDateString('th-TH')}</span></div>
@@ -771,32 +668,6 @@
                  afterImage.onerror = () => { afterImage.src = 'https://placehold.co/600x400/e2e8f0/a0aec0?text=Error'; };
             }
             
-            // Hide all special controls initially
-            adminControls.classList.add('hidden');
-            requesterRatingControls.classList.add('hidden');
-            ratingDisplaySection.classList.add('hidden');
-
-            // Logic for rating section
-            if (request.rating) {
-                ratingDisplaySection.classList.remove('hidden');
-                ratingDisplayScore.textContent = request.rating;
-                ratingDisplayStars.innerHTML = '';
-                for(let i = 0; i < 5; i++) {
-                    ratingDisplayStars.innerHTML += `<span class="${i < request.rating ? 'text-yellow-500' : 'text-slate-300'}">★</span>`;
-                }
-                ratingDisplayCommentContainer.classList.toggle('hidden', !request.ratingComment);
-                ratingDisplayComment.textContent = request.ratingComment || '';
-            } else if (!currentUser.isAdmin && request.status === 'ซ่อมเสร็จแล้ว') {
-                requesterRatingControls.classList.remove('hidden');
-                // Reset rating controls
-                currentRating = 0;
-                ratingValueInput.value = 0;
-                ratingCommentInput.value = '';
-                submitRatingBtn.disabled = true;
-                ratingStarsInput.querySelectorAll('.rating-star').forEach(star => star.classList.remove('selected'));
-            }
-
-            // Logic for admin controls
             if (currentUser.isAdmin) {
                 adminControls.classList.remove('hidden');
                 updateStatusSelect.value = request.status;
@@ -808,6 +679,8 @@
                     changeAfterImageBtn.classList.toggle('hidden', !request.afterImageUrl);
                     initialUploadContainer.classList.toggle('hidden', !!request.afterImageUrl);
                 }
+            } else {
+                adminControls.classList.add('hidden');
             }
             showModal(detailsModal, true);
         }
@@ -817,10 +690,7 @@
             try {
                 const data = await callGasApi({ action: 'getRequests' });
                 if (data) {
-                    // Make sure rating and ratingComment are part of the data object
-                    allRequests = data.map(r => ({ ...r, rating: r.rating || null, ratingComment: r.ratingComment || ''}))
-                                      .sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
-                    
+                    allRequests = data.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
                     if (currentUser.isAdmin) {
                         updateSummaryCards(allRequests);
                         renderRequests(allRequests, adminList);
@@ -1062,63 +932,7 @@
             finally { showLoading(false); submitBtn.disabled = false; }
         });
 
-        // --- Rating Logic ---
-        ratingStarsInput.addEventListener('click', (e) => {
-            const star = e.target.closest('.rating-star');
-            if (!star) return;
-
-            currentRating = parseInt(star.dataset.value);
-            ratingValueInput.value = currentRating;
-            submitRatingBtn.disabled = false;
-
-            const stars = Array.from(ratingStarsInput.querySelectorAll('.rating-star'));
-            stars.forEach((s, index) => {
-                s.classList.toggle('selected', index < currentRating);
-            });
-        });
-
-        ratingStarsInput.addEventListener('mouseover', (e) => {
-             const star = e.target.closest('.rating-star');
-             if(!star) return;
-             const hoverValue = parseInt(star.dataset.value);
-             const stars = Array.from(ratingStarsInput.querySelectorAll('.rating-star'));
-             stars.forEach((s, index) => {
-                 s.classList.toggle('hover:text-yellow-400', index < hoverValue);
-             });
-        });
-        
-        submitRatingBtn.addEventListener('click', async () => {
-            if(currentRating === 0) {
-                alert('กรุณาเลือกดาวเพื่อให้คะแนน');
-                return;
-            }
-            submitRatingBtn.disabled = true;
-            showLoading(true);
-
-            const payload = {
-                action: 'updateRating',
-                id: currentRequestId,
-                rating: currentRating,
-                comment: ratingCommentInput.value.trim()
-            };
-            
-            try {
-                const result = await callGasApi(payload);
-                if (result && result.success) {
-                    alert('ขอบคุณสำหรับการให้คะแนน!');
-                    showModal(detailsModal, false);
-                    await loadDashboardData();
-                }
-            } catch (error) {
-                alert(`เกิดข้อผิดพลาด: ${error.message}`);
-            } finally {
-                showLoading(false);
-                submitRatingBtn.disabled = false;
-            }
-        });
-
-
-        // --- Pull to refresh logic ---
+        // --- NEW: Pull to refresh logic ---
         const ptrElement = document.getElementById('pull-to-refresh');
         const ptrArrow = document.getElementById('ptr-arrow');
         
