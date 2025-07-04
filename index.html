@@ -692,8 +692,16 @@
             showModal(detailsModal, true);
         }
 
-        async function loadDashboardData() {
-            showLoading(true);
+        // =================================================================================
+        // ===== START: CODE CHANGES / จุดเริ่มต้นของการแก้ไขโค้ด =====
+        // =================================================================================
+        
+        /**
+         * Fetches all repair requests from the server and updates the UI.
+         * @param {boolean} showIndicator - Whether to show the global loading overlay. Defaults to true.
+         */
+        async function loadDashboardData(showIndicator = true) {
+            if (showIndicator) showLoading(true);
             try {
                 const data = await callGasApi({ action: 'getRequests' });
                 if (data) {
@@ -709,7 +717,7 @@
             } catch(error) {
                 alert(`เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.message}`);
             } finally {
-                 showLoading(false);
+                 if (showIndicator) showLoading(false);
             }
         }
         
@@ -770,32 +778,65 @@
             });
         });
         
+        /**
+         * Handles the submission of the new repair request form.
+         */
         newRequestForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitBtn = e.submitter;
             submitBtn.disabled = true;
             submitBtn.textContent = 'กำลังส่ง...';
             showLoading(true);
+
             try {
                 const formData = new FormData(newRequestForm);
                 let imageUrl = '';
                 const imageFile = formData.get('image');
+
                 if (imageFile && imageFile.size > 0) {
                     const uploadedUrl = await uploadToCloudinary(imageFile);
-                    if (!uploadedUrl) { submitBtn.disabled = false; submitBtn.textContent = 'ส่งเรื่อง'; showLoading(false); return; }
+                    if (!uploadedUrl) {
+                        throw new Error('ไม่สามารถอัปโหลดรูปภาพได้');
+                    }
                     imageUrl = uploadedUrl;
                 }
-                const requestData = { problem: formData.get('problem'), category: formData.get('category'), location: formData.get('location'), details: formData.get('details'), beforeImageUrl: imageUrl, requesterId: currentUser.id, requesterName: currentUser.name };
+
+                const requestData = {
+                    problem: formData.get('problem'),
+                    category: formData.get('category'),
+                    location: formData.get('location'),
+                    details: formData.get('details'),
+                    beforeImageUrl: imageUrl,
+                    requesterId: currentUser.id,
+                    requesterName: currentUser.name
+                };
+
                 const result = await callGasApi({ action: 'createRequest', data: requestData });
+
                 if (result) {
                     alert('แจ้งซ่อมสำเร็จ');
                     showModal(requestModal, false);
-                    await loadDashboardData();
+                    // Reload data without showing a separate loading indicator,
+                    // as the main one is already active.
+                    await loadDashboardData(false);
+                } else {
+                    throw new Error('ไม่สามารถสร้างใบแจ้งซ่อมได้ กรุณาลองใหม่อีกครั้ง');
                 }
-            } catch (error) { console.error("Submit error", error); } 
-            finally { showLoading(false); submitBtn.disabled = false; submitBtn.textContent = 'ส่งเรื่อง'; }
+            } catch (error) {
+                console.error("Submit error", error);
+                alert(`เกิดข้อผิดพลาด: ${error.message}`);
+            } finally {
+                // This block ensures the UI is always reset correctly after the operation.
+                showLoading(false);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'ส่งเรื่อง';
+            }
         });
         
+        // =================================================================================
+        // ===== END: CODE CHANGES / สิ้นสุดการแก้ไขโค้ด =====
+        // =================================================================================
+
         imageInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
