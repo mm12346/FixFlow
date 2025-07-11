@@ -167,6 +167,7 @@
                                 <option value="อาคารสถานที่">อาคารสถานที่</option>
                                 <option value="หลอดไฟเชลฟ์สินค้า">หลอดไฟเชลฟ์สินค้า</option>
                                 <option value="ห้องน้ำ">ห้องน้ำ</option>
+                                <option value="ASRS">ASRS</option>
                             </select>
                             <button id="requester-filter-btn" class="bg-slate-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-slate-800">ค้นหา</button>
                         </div>
@@ -194,8 +195,8 @@
                             <p class="text-sm font-medium text-slate-500">ซ่อมเสร็จแล้ว</p>
                             <p id="summary-completed" class="text-3xl font-bold text-slate-800 mt-1">0</p>
                         </div>
-                        <div data-status="ยกเลิก" class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-400 cursor-pointer hover:bg-red-50 transition-colors">
-                            <p class="text-sm font-medium text-slate-500">ยกเลิก</p>
+                        <div data-status="รออะไหล่" class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-400 cursor-pointer hover:bg-red-50 transition-colors">
+                            <p class="text-sm font-medium text-slate-500">รออะไหล่</p>
                             <p id="summary-cancelled" class="text-3xl font-bold text-slate-800 mt-1">0</p>
                         </div>
                     </div>
@@ -215,6 +216,7 @@
                                 <option value="อาคารสถานที่">อาคารสถานที่</option>
                                 <option value="หลอดไฟเชลฟ์สินค้า">หลอดไฟเชลฟ์สินค้า</option>
                                 <option value="ห้องน้ำ">ห้องน้ำ</option>
+                                <option value="ASRS">ASRS</option>
                             </select>
                             <button id="admin-filter-btn" class="bg-slate-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-slate-800">ค้นหา</button>
                         </div>
@@ -255,6 +257,7 @@
                                 <option value="อาคารสถานที่">อาคารสถานที่</option>
                                 <option value="หลอดไฟเชลฟ์สินค้า">หลอดไฟเชลฟ์สินค้า</option>
                                 <option value="ห้องน้ำ">ห้องน้ำ</option>
+                                <option value="ASRS">ASRS</option>
                             </select>
                         </div>
                          <div>
@@ -292,7 +295,7 @@
                 <p class="text-slate-500 mb-4" id="details-id"></p>
                 
                 <div id="cancellation-reason-display" class="hidden mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <h4 class="font-bold text-red-800">เหตุผลการยกเลิก:</h4>
+                    <h4 class="font-bold text-red-800">เหตุผลการรออะไหล่:</h4>
                     <p class="text-red-700" id="cancellation-reason-text"></p>
                 </div>
 
@@ -338,7 +341,7 @@
                                  <option value="รอดำเนินการ">รอดำเนินการ</option>
                                  <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
                                  <option value="ซ่อมเสร็จแล้ว">ซ่อมเสร็จแล้ว</option>
-                                 <option value="ยกเลิก">ยกเลิก</option>
+                                 <option value="รออะไหล่">รออะไหล่</option>
                             </select>
                          </div>
                          <div class="self-end">
@@ -346,7 +349,7 @@
                          </div>
                     </div>
                     <div id="cancellation-comment-section" class="hidden">
-                        <label for="cancellation-comment-input" class="block text-sm font-medium text-slate-700">เหตุผลการยกเลิก (จำเป็น)</label>
+                        <label for="cancellation-comment-input" class="block text-sm font-medium text-slate-700">เหตุผลการรออะไหล่</label>
                         <textarea id="cancellation-comment-input" rows="3" class="mt-1 w-full px-3 py-2 border border-slate-300 rounded-lg"></textarea>
                     </div>
                  </div>
@@ -379,7 +382,7 @@
             <h3 class="text-xl font-bold mt-4">ยืนยันการลบ</h3>
             <p class="text-slate-500 mt-2">คุณแน่ใจหรือไม่ว่าต้องการลบรายการแจ้งซ่อมนี้? การกระทำนี้ไม่สามารถย้อนกลับได้</p>
             <div class="mt-6 flex justify-center gap-4">
-                <button id="confirm-delete-no-btn" class="py-2 px-6 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200">ยกเลิก</button>
+                <button id="confirm-delete-no-btn" class="py-2 px-6 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200">รออะไหล่</button>
                 <button id="confirm-delete-yes-btn" class="py-2 px-6 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700">ใช่, ลบเลย</button>
             </div>
         </div>
@@ -549,7 +552,7 @@
             "รอดำเนินการ": "bg-yellow-100 text-yellow-800",
             "กำลังดำเนินการ": "bg-blue-100 text-blue-800",
             "ซ่อมเสร็จแล้ว": "bg-green-100 text-green-800",
-            "ยกเลิก": "bg-red-100 text-red-800",
+            "รออะไหล่": "bg-red-100 text-red-800",
         };
 
         async function callGasApi(payload) {
@@ -607,7 +610,7 @@
                 if (req.status === 'รอดำเนินการ') counts.pending++;
                 else if (req.status === 'กำลังดำเนินการ') counts.inprogress++;
                 else if (req.status === 'ซ่อมเสร็จแล้ว') counts.completed++;
-                else if (req.status === 'ยกเลิก') counts.cancelled++;
+                else if (req.status === 'รออะไหล่') counts.cancelled++;
             });
             document.getElementById('summary-pending').textContent = counts.pending;
             document.getElementById('summary-inprogress').textContent = counts.inprogress;
@@ -659,8 +662,8 @@
             document.getElementById('details-requester').textContent = `${request.requesterName} (${request.requesterId})`;
             document.getElementById('details-details').textContent = request.details || '-';
 
-            cancellationReasonDisplay.classList.toggle('hidden', !(request.status === 'ยกเลิก' && request.adminComment));
-            if (request.status === 'ยกเลิก' && request.adminComment) {
+            cancellationReasonDisplay.classList.toggle('hidden', !(request.status === 'รออะไหล่' && request.adminComment));
+            if (request.status === 'รออะไล่' && request.adminComment) {
                  document.getElementById('cancellation-reason-text').textContent = request.adminComment;
             }
 
@@ -678,7 +681,7 @@
             if (currentUser.isAdmin) {
                 adminControls.classList.remove('hidden');
                 updateStatusSelect.value = request.status;
-                cancellationCommentSection.classList.toggle('hidden', request.status !== 'ยกเลิก');
+                cancellationCommentSection.classList.toggle('hidden', request.status !== 'รออะไหล่');
                 document.getElementById('cancellation-comment-input').value = request.adminComment || '';
                 const isCompleted = request.status === 'ซ่อมเสร็จแล้ว';
                 uploadAfterImageSection.classList.toggle('hidden', !isCompleted);
@@ -867,9 +870,9 @@
             updateStatusBtn.disabled = true;
             const newStatus = updateStatusSelect.value;
             const payload = { action: 'updateStatus', id: currentRequestId, status: newStatus, updaterName: currentUser.name };
-            if (newStatus === 'ยกเลิก') {
+            if (newStatus === 'รออะไหล่') {
                 const comment = document.getElementById('cancellation-comment-input').value.trim();
-                if (!comment) { alert('กรุณากรอกเหตุผลการยกเลิก'); updateStatusBtn.disabled = false; return; }
+                if (!comment) { alert('กรุณากรอกเหตุผลการรออะไหล่'); updateStatusBtn.disabled = false; return; }
                 payload.comment = comment;
             }
             showLoading(true);
@@ -881,7 +884,7 @@
         });
         
         updateStatusSelect.addEventListener('change', (e) => {
-            cancellationCommentSection.classList.toggle('hidden', e.target.value !== 'ยกเลิก');
+            cancellationCommentSection.classList.toggle('hidden', e.target.value !== 'รออะไหล่');
             uploadAfterImageSection.classList.toggle('hidden', e.target.value !== 'ซ่อมเสร็จแล้ว');
         });
 
